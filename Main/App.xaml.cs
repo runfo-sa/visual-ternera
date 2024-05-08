@@ -1,8 +1,11 @@
 ﻿using Main.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Markup;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Main
 {
@@ -28,6 +31,13 @@ namespace Main
 
         private static void ConfigureServices(ServiceCollection services)
         {
+            services.AddSingleton(provider =>
+            {
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(HyphenatedNamingConvention.Instance)
+                    .Build();
+                return deserializer.Deserialize<Core.Settings>(File.ReadAllText("settings.yaml"));
+            });
             services.AddSingleton<MainViewModel>();
             services.AddSingleton(provider => new MainView()
             {

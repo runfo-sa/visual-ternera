@@ -4,10 +4,172 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Editor"
+             xmlns:view="clr-namespace:Editor.View"
+             xmlns:model="clr-namespace:Editor.Model"
+             xmlns:viewmodel="clr-namespace:Editor.ViewModel"
+             xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
              mc:Ignorable="d"
-             Background="Azure"
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="64">EDITOR</Label>
+             d:DataContext="{d:DesignInstance Type=viewmodel:EditorViewModel}"
+             d:DesignHeight="720"
+             d:DesignWidth="1260">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <Menu Grid.Row="0">
+      <MenuItem Header="_Archivos"></MenuItem>
+      <MenuItem Header="_Editar"></MenuItem>
+      <MenuItem Header="_Ver"></MenuItem>
+      <MenuItem Header="_Herramientas"></MenuItem>
+      <MenuItem Header="_Git"></MenuItem>
+      <MenuItem Header="_Ayuda"></MenuItem>
+    </Menu>
+
+    <!-- ToolBar -->
+    <Border Grid.Row="1"
+            BorderThickness="1"
+            BorderBrush="Gray">
+      <DockPanel LastChildFill="False"
+                 Margin="10,0,10,0">
+        <ToolBarTray IsLocked="True"
+                     DockPanel.Dock="Left">
+          <ToolBar>
+            <Button x:Name="newButton"
+                    Content="New"
+                    Command="{Binding NewFile}" />
+            <Button x:Name="openButton"
+                    Content="Open"
+                    Command="{Binding OpenFile}" />
+            <Button x:Name="saveButton"
+                    Content="Save" Command="{Binding SaveFile}"
+                    CommandParameter="{Binding ElementName=tabControl, Path=SelectedItem}" />
+            <Button x:Name="saveAllButton"
+                    Content="Save all"
+                    Command="{Binding SaveAllFiles}" />
+          </ToolBar>
+        </ToolBarTray>
+
+        <ToolBarTray IsLocked="True"
+                     DockPanel.Dock="Right">
+          <ToolBar>
+            <Button x:Name="previewButton"
+                    Content="Preview"
+                    Command="{Binding PreviewLabel}"
+                    CommandParameter="{Binding ElementName=tabControl, Path=SelectedItem}" />
+            <Button x:Name="printButton"
+                    Content="Imprimir" />
+            <ComboBox>
+              <ComboBoxItem Content="TODO!"
+                            IsSelected="True" />
+            </ComboBox>
+          </ToolBar>
+        </ToolBarTray>
+      </DockPanel>
+    </Border>
+
+    <Grid Margin="10"
+          Grid.Row="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="15*" />
+        <ColumnDefinition Width="10" />
+        <ColumnDefinition Width="60*" />
+        <ColumnDefinition Width="10" />
+        <ColumnDefinition Width="25*" />
+      </Grid.ColumnDefinitions>
+
+      <!-- TreeView -->
+      <DockPanel LastChildFill="True">
+        <Label Content="Arbol de Etiquetas"
+               DockPanel.Dock="Top" />
+        <TreeView ItemsSource="{Binding RootDir}">
+          <TreeView.Resources>
+            <HierarchicalDataTemplate DataType="{x:Type model:LabelDir}"
+                                      ItemsSource="{Binding Items}">
+              <TextBlock Text="{Binding Name}" />
+            </HierarchicalDataTemplate>
+
+            <DataTemplate DataType="{x:Type model:LabelFile}">
+              <TextBlock Text="{Binding Name}"
+                         Margin="2">
+                <TextBlock.InputBindings>
+                  <MouseBinding MouseAction="LeftCLick"
+                                Command="{Binding DataContext.OpenSelected, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                CommandParameter="{Binding}" />
+                </TextBlock.InputBindings>
+              </TextBlock>
+            </DataTemplate>
+
+            <Style TargetType="TreeViewItem"
+                   BasedOn="{StaticResource {x:Type TreeViewItem}}">
+              <Setter Property="Focusable"
+                      Value="False" />
+              <Style.Triggers>
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+                  <Setter Property="Background"
+                          Value="LightCyan" />
+                </Trigger>
+              </Style.Triggers>
+            </Style>
+          </TreeView.Resources>
+        </TreeView>
+      </DockPanel>
+
+      <GridSplitter Grid.Column="1"
+                    Background="Transparent"
+                    HorizontalAlignment="Stretch" />
+
+      <TabControl Grid.Column="2"
+                  x:Name="tabControl"
+                  ItemsSource="{Binding Tabs}"
+                  SelectedIndex="{Binding SelectedTab}">
+        <TabControl.ItemTemplate>
+          <DataTemplate DataType="{x:Type model:TabItem}">
+            <DockPanel>
+              <TextBlock Text="{Binding Header}"
+                         DockPanel.Dock="Left"
+                         TextAlignment="Center"
+                         VerticalAlignment="Center">
+                <TextBlock.InputBindings>
+                  <MouseBinding MouseAction="MiddleClick"
+                                Command="{Binding DataContext.CloseTab, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                CommandParameter="{Binding}" />
+                </TextBlock.InputBindings>
+              </TextBlock>
+              <Separator Opacity="0"
+                         Width="5" />
+              <Button Content="x"
+                      DockPanel.Dock="Right"
+                      Background="Transparent"
+                      BorderBrush="Transparent"
+                      Command="{Binding DataContext.CloseTab, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                      CommandParameter="{Binding}" />
+            </DockPanel>
+          </DataTemplate>
+        </TabControl.ItemTemplate>
+
+        <TabControl.ContentTemplate>
+          <DataTemplate DataType="{x:Type model:TabItem}">
+            <avalon:TextEditor WordWrap="True"
+                               ShowLineNumbers="True"
+                               Document="{Binding EditorBody}" />
+          </DataTemplate>
+        </TabControl.ContentTemplate>
+      </TabControl>
+
+      <GridSplitter Grid.Column="3"
+                    Background="Transparent"
+                    HorizontalAlignment="Stretch" />
+
+      <Border Grid.Column="4"
+              BorderThickness="1"
+              BorderBrush="Gray"
+              Background="LightGray">
+        <view:Preview Margin="5" />
+      </Border>
     </Grid>
+  </Grid>
 </UserControl>

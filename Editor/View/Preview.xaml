@@ -1,0 +1,89 @@
+﻿<UserControl x:Class="Editor.View.Preview"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodel="clr-namespace:Editor.ViewModel"
+             mc:Ignorable="d"
+             Background="LightGray"
+             d:DataContext="{d:DesignInstance Type=viewmodel:EditorViewModel}"
+             d:DesignHeight="450"
+             d:DesignWidth="400">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <DockPanel LastChildFill="False"
+               Margin="5">
+      <TextBlock Text="Preview"
+                 VerticalAlignment="Center" />
+      <Separator Width="40"
+                 Opacity="0" />
+
+      <Button Content="Zoom-In"
+              Command="{Binding ZoomIn}" />
+      <Separator Width="10"
+                 Opacity="0" />
+      <TextBox Text="{Binding PreviewSizePercentage, StringFormat='\{0\}%'}" />
+      <Separator Width="10"
+                 Opacity="0" />
+      <Button Content="Zoom-Out"
+              Command="{Binding ZoomOut}" />
+      <Separator Width="20"
+                 Opacity="0" />
+
+      <Button Content="↻"
+              Command="{Binding RotateRight}"
+              DockPanel.Dock="Right" />
+      <Separator Width="10"
+                 Opacity="0"
+                 DockPanel.Dock="Right" />
+      <TextBox Text="{Binding PreviewAngle, StringFormat='\{0\}°'}"
+               IsReadOnly="True"
+               MinWidth="30"
+               DockPanel.Dock="Right" />
+      <Separator Width="10"
+                 Opacity="0"
+                 DockPanel.Dock="Right" />
+      <Button Content="↺"
+              Command="{Binding RotateLeft}"
+              DockPanel.Dock="Right" />
+    </DockPanel>
+
+    <Border Grid.Row="1"
+            Margin="0,5,0,5"
+            BorderBrush="Gray"
+            BorderThickness="1">
+      <ScrollViewer HorizontalScrollBarVisibility="Visible">
+        <Image Source="{Binding PreviewImage}" Stretch="None" SnapsToDevicePixels="True" />
+      </ScrollViewer>
+    </Border>
+
+    <DockPanel Margin="5"
+               Grid.Row="2"
+               LastChildFill="False">
+      <TextBlock Text="DPI:"
+                 VerticalAlignment="Center" />
+      <Separator Width="20"
+                 Opacity="0" />
+      <ComboBox ItemsSource="{Binding DpiList}"
+                DisplayMemberPath="Display"
+                SelectedValuePath="Value"
+                SelectedIndex="2" />
+
+      <ComboBox DockPanel.Dock="Right"
+                ItemsSource="{Binding SizeList}"
+                DisplayMemberPath="Display"
+                SelectedValuePath="Value" />
+      <Separator Width="20"
+                 Opacity="0"
+                 DockPanel.Dock="Right" />
+      <TextBlock Text="Size:"
+                 DockPanel.Dock="Right"
+                 VerticalAlignment="Center" />
+    </DockPanel>
+  </Grid>
+</UserControl>

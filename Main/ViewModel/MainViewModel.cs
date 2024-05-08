@@ -1,4 +1,7 @@
-﻿using Core;
+﻿using Cohere.ViewModel;
+using Comparator.ViewModel;
+using Core;
+using Editor.ViewModel;
 using Main.Model;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -32,15 +35,16 @@ namespace Main.ViewModel
         }
 
         public RelayCommand RefreshClients { get; set; }
+        public GitTag Tag { get; set; }
 
-        public MainViewModel()
+        public MainViewModel(Settings settings) : base(settings)
         {
             var dbContext = new ClientDbContext();
             ClientsList = [.. dbContext.EstadoCliente];
 
-            OpenEditor = OpenWindow<Editor.Editor>();
-            OpenCohere = OpenWindow<Cohere.Cohere>();
-            OpenComparator = OpenWindow<Comparator.Comparator>();
+            OpenEditor = OpenWindow<Editor.Editor, EditorViewModel>(Settings);
+            OpenCohere = OpenWindow<Cohere.Cohere, CohereViewModel>(Settings);
+            OpenComparator = OpenWindow<Comparator.Comparator, ComparatorViewModel>(Settings);
             RefreshClients = new RelayCommand(a => UpdateClients(), p => true);
 
             DispatcherTimer refreshTimer = new()
@@ -56,16 +60,24 @@ namespace Main.ViewModel
             };
             updateTime.Tick += UpdateTime;
             updateTime.Start();
+
+            string rc = GitTag.RunGitCommand("for-each-ref",
+                "--format=\"%(refname:short)|%(creatordate:format:%Y/%m/%d %I:%M)|%(subject)\" \"refs/tags/*\"",
+                "C:\\Users\\Agustin.Marco\\Projects\\Apps\\C#\\visual_ternera\\IDE\\TestRepo");
+            Tag = GitTag.Parse(rc);
         }
 
-        private static RelayCommand OpenWindow<T>() where T : IContent, new()
+        private static RelayCommand OpenWindow<T, K>(Settings settings)
+            where T : IContent, new()
+            where K : ViewModelBase
         {
             return new RelayCommand(a =>
             {
                 new Window
                 {
-                    Content = new T(),
+                    Content = new T() { },
                     Title = "Visual Ternera - " + T.Title,
+                    DataContext = Activator.CreateInstance(typeof(K), settings)
                 }.Show();
             }, p => true);
         }

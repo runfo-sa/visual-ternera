@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Editor", "Editor\Editor.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{0B00CED4-0C69-41DC-BA3D-BF36A9ED04AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Comparator", "Comparator\Comparator.csproj", "{366A99E9-8646-4124-8D34-2D2750B690D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Comparator", "Comparator\Comparator.csproj", "{366A99E9-8646-4124-8D34-2D2750B690D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cohere", "Cohere\Cohere.csproj", "{3BB073B6-9E35-475E-9BE0-5DC9552A00F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cohere", "Cohere\Cohere.csproj", "{3BB073B6-9E35-475E-9BE0-5DC9552A00F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{F56A1D1C-6965-4932-BA52-EB7F70FAFD95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{3BB073B6-9E35-475E-9BE0-5DC9552A00F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BB073B6-9E35-475E-9BE0-5DC9552A00F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BB073B6-9E35-475E-9BE0-5DC9552A00F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F56A1D1C-6965-4932-BA52-EB7F70FAFD95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F56A1D1C-6965-4932-BA52-EB7F70FAFD95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F56A1D1C-6965-4932-BA52-EB7F70FAFD95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F56A1D1C-6965-4932-BA52-EB7F70FAFD95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
