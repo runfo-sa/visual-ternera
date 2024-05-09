@@ -3,5 +3,6 @@
     public class Settings
     {
         public required string EtiquetasDir { get; set; }
+        public required string SqlConnection { get; set; }
     }
 }

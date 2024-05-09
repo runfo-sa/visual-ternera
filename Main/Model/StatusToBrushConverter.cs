@@ -12,12 +12,12 @@ namespace Main.Model
             var status = (Status)value;
             return status switch
             {
-                Status.DesactualizadaSobrantes => Brushes.Firebrick,
-                Status.MultipleInstalaciones => Brushes.OrangeRed,
-                Status.Desactualizada => Brushes.Tomato,
-                Status.NoInstalado => Brushes.DarkRed,
-                Status.Sobrantes => Brushes.Orange,
-                Status.Okay => Brushes.LightSeaGreen,
+                Status.DesactualizadaSobrantes => "#DD5746",
+                Status.MultipleInstalaciones => "#8B322C",
+                Status.Desactualizada => "#DD5746",
+                Status.NoInstalado => "#8B322C",
+                Status.Sobrantes => "#FFC470",
+                Status.Okay => "#4793AF",
                 _ => throw new NotImplementedException()
             };
         }

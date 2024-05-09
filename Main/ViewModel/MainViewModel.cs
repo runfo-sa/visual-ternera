@@ -39,7 +39,7 @@ namespace Main.ViewModel
 
         public MainViewModel(Settings settings) : base(settings)
         {
-            var dbContext = new ClientDbContext();
+            var dbContext = new ClientDbContext(Settings.SqlConnection);
             ClientsList = [.. dbContext.EstadoCliente];
 
             OpenEditor = OpenWindow<Editor.Editor, EditorViewModel>(Settings);
@@ -61,9 +61,11 @@ namespace Main.ViewModel
             updateTime.Tick += UpdateTime;
             updateTime.Start();
 
-            string rc = GitTag.RunGitCommand("for-each-ref",
+            string rc = GitTag.RunGitCommand(
+                "for-each-ref",
                 "--format=\"%(refname:short)|%(creatordate:format:%Y/%m/%d %I:%M)|%(subject)\" \"refs/tags/*\"",
-                "C:\\Users\\Agustin.Marco\\Projects\\Apps\\C#\\visual_ternera\\IDE\\TestRepo");
+                "C:\\Projects\\VisualTernera\\TestRepo"
+            );
             Tag = GitTag.Parse(rc);
         }
 
@@ -96,7 +98,7 @@ namespace Main.ViewModel
         {
             LastRefreshed = 0;
             ClientsList.Clear();
-            var dbContext = new ClientDbContext();
+            var dbContext = new ClientDbContext(Settings.SqlConnection);
             foreach (var client in dbContext.EstadoCliente)
             {
                 ClientsList.Add(client);

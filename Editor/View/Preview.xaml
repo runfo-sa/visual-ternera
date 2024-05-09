@@ -17,49 +17,48 @@
     </Grid.RowDefinitions>
 
     <DockPanel LastChildFill="False"
-               Margin="5">
-      <TextBlock Text="Preview"
-                 VerticalAlignment="Center" />
-      <Separator Width="40"
-                 Opacity="0" />
+            Margin="5">
+        <TextBlock Text="Preview"
+                VerticalAlignment="Center" />
+        <Separator Width="40"
+                Opacity="0" />
 
-      <Button Content="Zoom-In"
-              Command="{Binding ZoomIn}" />
-      <Separator Width="10"
-                 Opacity="0" />
-      <TextBox Text="{Binding PreviewSizePercentage, StringFormat='\{0\}%'}" />
-      <Separator Width="10"
-                 Opacity="0" />
-      <Button Content="Zoom-Out"
-              Command="{Binding ZoomOut}" />
-      <Separator Width="20"
-                 Opacity="0" />
+        <Button Content="Zoom-In"
+            Command="{Binding ZoomIn}" />
+        <Separator Width="10"
+                Opacity="0" />
+        <TextBox Text="{Binding PreviewSizePercentage, StringFormat='\{0\}%'}" />
+        <Separator Width="10"
+                Opacity="0" />
+        <Button Content="Zoom-Out"
+            Command="{Binding ZoomOut}" />
+        <Separator Width="20"
+                Opacity="0" />
 
-      <Button Content="↻"
-              Command="{Binding RotateRight}"
-              DockPanel.Dock="Right" />
-      <Separator Width="10"
-                 Opacity="0"
-                 DockPanel.Dock="Right" />
-      <TextBox Text="{Binding PreviewAngle, StringFormat='\{0\}°'}"
-               IsReadOnly="True"
-               MinWidth="30"
-               DockPanel.Dock="Right" />
-      <Separator Width="10"
-                 Opacity="0"
-                 DockPanel.Dock="Right" />
-      <Button Content="↺"
-              Command="{Binding RotateLeft}"
-              DockPanel.Dock="Right" />
+        <Button Content="↻"
+            Command="{Binding RotateRight}"
+            DockPanel.Dock="Right" />
+        <Separator Width="10"
+                Opacity="0"
+                DockPanel.Dock="Right" />
+        <TextBox Text="{Binding PreviewAngle, StringFormat='\{0\}°'}"
+            IsReadOnly="True"
+            MinWidth="30"
+            DockPanel.Dock="Right" />
+        <Separator Width="10"
+                Opacity="0"
+                DockPanel.Dock="Right" />
+        <Button Content="↺"
+            Command="{Binding RotateLeft}"
+            DockPanel.Dock="Right" />
     </DockPanel>
-
+      
+      
     <Border Grid.Row="1"
-            Margin="0,5,0,5"
-            BorderBrush="Gray"
-            BorderThickness="1">
-      <ScrollViewer HorizontalScrollBarVisibility="Visible">
-        <Image Source="{Binding PreviewImage}" Stretch="None" SnapsToDevicePixels="True" />
-      </ScrollViewer>
+        Margin="0,5,0,5"
+        BorderBrush="Gray"
+        BorderThickness="1">
+        <Image Source="{Binding PreviewImage}" SnapsToDevicePixels="True" />
     </Border>
 
     <DockPanel Margin="5"

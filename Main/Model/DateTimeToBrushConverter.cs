@@ -11,9 +11,9 @@ namespace Main.Model
         {
             var dateTime = (DateTime)value;
             if (dateTime < DateTime.Now.AddHours(-4))
-                return Brushes.LightGoldenrodYellow;
+                return "#815e3b";
 
-            return Brushes.White;
+            return Brushes.Transparent;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

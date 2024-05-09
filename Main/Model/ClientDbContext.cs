@@ -22,7 +22,7 @@ namespace Main.Model
     /// <summary>
     /// Instancia de conexión con una base de datos para la tabla de <see cref="Client"/>
     /// </summary>
-    public class ClientDbContext() : DbContext()
+    public class ClientDbContext(string sqlConnection) : DbContext()
     {
         public DbSet<Client> EstadoCliente { get; set; }
 
@@ -34,7 +34,7 @@ namespace Main.Model
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=rafatest;Database=VisualTernera;Trusted_Connection=true;Encrypt=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer(sqlConnection);
         }
     }
 }

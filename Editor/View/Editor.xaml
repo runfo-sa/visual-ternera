@@ -31,7 +31,7 @@
     <!-- ToolBar -->
     <Border Grid.Row="1"
             BorderThickness="1"
-            BorderBrush="Gray">
+            BorderBrush="#AF8260">
       <DockPanel LastChildFill="False"
                  Margin="10,0,10,0">
         <ToolBarTray IsLocked="True"
@@ -83,7 +83,8 @@
       <!-- TreeView -->
       <DockPanel LastChildFill="True">
         <Label Content="Arbol de Etiquetas"
-               DockPanel.Dock="Top" />
+               DockPanel.Dock="Top"
+               FontWeight="DemiBold"/>
         <TreeView ItemsSource="{Binding RootDir}">
           <TreeView.Resources>
             <HierarchicalDataTemplate DataType="{x:Type model:LabelDir}"
@@ -102,15 +103,14 @@
               </TextBlock>
             </DataTemplate>
 
-            <Style TargetType="TreeViewItem"
-                   BasedOn="{StaticResource {x:Type TreeViewItem}}">
+            <Style TargetType="TreeViewItem">
               <Setter Property="Focusable"
                       Value="False" />
               <Style.Triggers>
                 <Trigger Property="IsMouseOver"
                          Value="True">
                   <Setter Property="Background"
-                          Value="LightCyan" />
+                          Value="#803D3B" />
                 </Trigger>
               </Style.Triggers>
             </Style>
@@ -166,8 +166,8 @@
 
       <Border Grid.Column="4"
               BorderThickness="1"
-              BorderBrush="Gray"
-              Background="LightGray">
+              BorderBrush="#AF8260"
+              Background="Transparent">
         <view:Preview Margin="5" />
       </Border>
     </Grid>
