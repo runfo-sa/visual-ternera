@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Windows;
-using Wpf.Ui.Appearance;
 
 namespace Main
 {
@@ -8,8 +7,6 @@ namespace Main
     {
         public MainView()
         {
-            SystemThemeWatcher.Watch(this);
-            ApplicationThemeManager.Apply(ApplicationTheme.Dark);
             InitializeComponent();
         }
 

@@ -5,12 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:model="clr-namespace:Main.Model"
         xmlns:viewmodel="clr-namespace:Main.ViewModel"
-        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-        d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
         Title="Visual Ternera - Main"
         Height="720"
         Width="1260">
+  <Window.Style>
+    <Style TargetType="Window" BasedOn="{StaticResource {x:Type Window}}" />
+  </Window.Style>
+
   <Window.Resources>
     <model:DateTimeToBrushConverter x:Key="DateColorConverter" />
     <model:StatusToBrushConverter x:Key="StatusColorConverter" />
@@ -29,12 +32,12 @@
         <RowDefinition Height="*" />
       </Grid.RowDefinitions>
 
-      <TextBlock Text="Acciones" Grid.Row="0" FontWeight="DemiBold" FontSize="26"/>
+      <TextBlock Text="Acciones" Grid.Row="0" FontWeight="DemiBold" FontSize="26" />
 
       <ItemsControl Grid.Row="1" VerticalAlignment="Center">
         <Button Command="{Binding OpenEditor}" Content="{Binding EditorTitle}" Margin="5" />
-                <Button Command="{Binding OpenComparator}" Content="{Binding ComparatorTitle}" Margin="5" />
-                <Button Command="{Binding OpenCohere}" Content="{Binding CohereTitle}" Margin="5" />
+        <Button Command="{Binding OpenComparator}" Content="{Binding ComparatorTitle}" Margin="5" />
+        <Button Command="{Binding OpenCohere}" Content="{Binding CohereTitle}" Margin="5" />
       </ItemsControl>
     </Grid>
 

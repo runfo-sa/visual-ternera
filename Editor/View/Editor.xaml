@@ -84,7 +84,7 @@
       <DockPanel LastChildFill="True">
         <Label Content="Arbol de Etiquetas"
                DockPanel.Dock="Top"
-               FontWeight="DemiBold"/>
+               FontWeight="DemiBold" />
         <TreeView ItemsSource="{Binding RootDir}">
           <TreeView.Resources>
             <HierarchicalDataTemplate DataType="{x:Type model:LabelDir}"
