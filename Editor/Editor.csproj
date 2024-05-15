@@ -8,11 +8,36 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\new.png" />
+    <None Remove="Resources\open.png" />
+    <None Remove="Resources\preview.png" />
+    <None Remove="Resources\print.png" />
+    <None Remove="Resources\save-all.png" />
+    <None Remove="Resources\save.png" />
+    <None Remove="Resources\zoom-in.png" />
+    <None Remove="Resources\zoom-out.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
     <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+    <PackageReference Include="YamlDotNet" Version="15.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\new.png" />
+    <Resource Include="Resources\open.png" />
+    <Resource Include="Resources\preview.png" />
+    <Resource Include="Resources\print.png" />
+    <Resource Include="Resources\save-all.png" />
+    <Resource Include="Resources\save.png" />
+    <Resource Include="Resources\zoom-in.png" />
+    <Resource Include="Resources\zoom-out.png" />
   </ItemGroup>
 
 </Project>

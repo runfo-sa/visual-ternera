@@ -5,21 +5,34 @@ using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace Editor.ViewModel
 {
     public class EditorViewModel : ViewModelBase
     {
+        private int _newTabNumber = 0;
+
+        public PreviewViewModel PreviewViewModel { get; }
+
         public ObservableCollection<TabItem> Tabs { get; set; } = [];
         public ObservableCollection<object> RootDir { get; set; } = [];
 
-        public CollectionView DpiList { get; }
-        public CollectionView SizeList { get; }
+        private TabItem _unpinnedTab = new("", new TextDocument(""))
+        {
+            Visibility = Visibility.Hidden
+        };
 
-        private int _newTabNumber = 0;
+        public TabItem UnpinnedTab
+        {
+            get => _unpinnedTab;
+            set
+            {
+                _unpinnedTab = value;
+                _unpinnedTab.IsModified += PinUnpinned;
+                OnPropertyChanged(nameof(UnpinnedTab));
+            }
+        }
+
         private int _selectedTab = 0;
 
         public int SelectedTab
@@ -28,53 +41,39 @@ namespace Editor.ViewModel
             set
             {
                 _selectedTab = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private BitmapSource _previewImage = null!;
-
-        public BitmapSource PreviewImage
-        {
-            get => _previewImage;
-            set
-            {
-                _previewImage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private double _previewAngle = 0.0;
-
-        public double PreviewAngle
-        {
-            get => _previewAngle;
-            set
-            {
-                _previewAngle = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedTab));
             }
         }
 
         public RelayCommand OpenFile => new(Open);
         public RelayCommand<TabItem> CloseTab => new(Close);
-        public RelayCommand<TabItem> PreviewLabel => new(GeneratePreview, p => p is not null);
-        public RelayCommand NewFile => new(_ => AddTab($"new {++_newTabNumber}", "^XA\r\n\r\n^XZ"));
-        public static RelayCommand<TabItem> SaveFile => new(TabItem.SaveItem, p => p is not null && p.HasUnsavedChanes);
 
-        public RelayCommand<LabelFile> OpenSelected => new(label =>
+        public RelayCommand PreviewLabel => new(
+            _ => PreviewViewModel.GeneratePreview(SelectedTab == 0 ? UnpinnedTab : Tabs[SelectedTab - 1]),
+            _ => (SelectedTab == 0) ? UnpinnedTab.Visibility == Visibility.Visible : (Tabs.Count > 0 && Tabs[SelectedTab - 1] != null)
+        );
+
+        public RelayCommand NewFile => new(_ => AddTab($"new {++_newTabNumber}", "^XA\r\n\r\n^XZ"));
+
+        public RelayCommand SaveFile => new(
+            _ => Tabs[SelectedTab - 1].SaveItem(),
+            _ => SelectedTab > 0 && Tabs[SelectedTab - 1] is not null && Tabs[SelectedTab - 1].HasUnsavedChanges
+        );
+
+        public RelayCommand OpenSelected => new(label =>
         {
-            if (label is not null)
+            if (label is not null && label is LabelFile)
             {
-                var select = Tabs.FirstOrDefault(t => t.Header == label.Name);
+                var file = label as LabelFile;
+                var select = Tabs.FirstOrDefault(t => t.Header == file!.Name);
                 if (select is not null)
                 {
-                    SelectedTab = Tabs.IndexOf(select);
+                    SelectedTab = Tabs.IndexOf(select) + 1;
                 }
                 else
                 {
-                    var content = File.ReadAllText(label.Path);
-                    AddTab(label.Name, content, label.Path);
+                    var content = File.ReadAllText(file!.Path);
+                    AddUnpinnedTab(file.Name, content, file.Path);
                 }
             }
         });
@@ -83,38 +82,26 @@ namespace Editor.ViewModel
         {
             foreach (var item in Tabs)
             {
-                if (item.HasUnsavedChanes)
+                if (item.HasUnsavedChanges)
                 {
-                    TabItem.SaveItem(item);
+                    item.SaveItem();
                 }
             }
         }, p => Tabs.Count > 0);
 
-        public RelayCommand RotateRight => new(_ =>
+        public RelayCommand PinTab => new(_ =>
         {
-            PreviewImage = new TransformedBitmap(PreviewImage, new RotateTransform(90.0));
-            var angle = PreviewAngle + 90.0;
-            PreviewAngle = angle >= 360.0 ? 0.0 : angle;
-        }, p => PreviewImage is not null);
-
-        public RelayCommand RotateLeft => new(_ =>
-        {
-            PreviewImage = new TransformedBitmap(PreviewImage, new RotateTransform(-90.0));
-            var angle = PreviewAngle - 90.0;
-            PreviewAngle = angle < 0.0 ? 270.0 : angle;
-        }, p => PreviewImage is not null);
-
-        public RelayCommand ZoomIn => new(_ =>
-        {
-            PreviewImage = new TransformedBitmap(PreviewImage, new ScaleTransform(0.75, 0.75));
-        });
-
-        public RelayCommand ZoomOut => new(_ =>
-        {
-            PreviewImage = new TransformedBitmap(PreviewImage, new ScaleTransform(1.25, 1.25));
+            AddTab(UnpinnedTab.Header, UnpinnedTab.EditorBody.Text, UnpinnedTab.Path);
+            Close(UnpinnedTab);
         });
 
         public EditorViewModel(Settings settings) : base(settings)
+        {
+            PreviewViewModel = new(settings);
+            InitTree();
+        }
+
+        private void InitTree()
         {
             var caja = new LabelDir("Caja");
             var otro = new LabelDir("Otros");
@@ -141,9 +128,6 @@ namespace Editor.ViewModel
             RootDir.Add(caja);
             RootDir.Add(prim);
             RootDir.Add(otro);
-
-            SizeList = new(SizeConstants.All);
-            DpiList = new(DpiConstants.All);
         }
 
         private void Open(object? obj)
@@ -164,12 +148,12 @@ namespace Editor.ViewModel
         {
             if (tab is not null)
             {
-                if (tab.HasUnsavedChanes)
+                if (tab.HasUnsavedChanges)
                 {
                     switch (MessageBox.Show($"Guardar archivo '{tab.Header}'?", "Guardar", MessageBoxButton.YesNoCancel))
                     {
                         case MessageBoxResult.Yes:
-                            TabItem.SaveItem(tab);
+                            tab.SaveItem();
                             Tabs.Remove(tab);
                             break;
 
@@ -181,6 +165,13 @@ namespace Editor.ViewModel
                             break;
                     }
                 }
+                else if (tab == UnpinnedTab)
+                {
+                    UnpinnedTab = new TabItem("", new TextDocument(""))
+                    {
+                        Visibility = Visibility.Hidden
+                    };
+                }
                 else
                 {
                     Tabs.Remove(tab);
@@ -188,20 +179,38 @@ namespace Editor.ViewModel
             }
         }
 
-        private void AddTab(string header, string content, string? path = null)
+        private void AddUnpinnedTab(string header, string content, string? path = null)
         {
-            Tabs.Add(new TabItem(header, new TextDocument(content), path));
-            SelectedTab = Tabs.Count - 1;
+            AddTab(header, content, path, false);
         }
 
-        private async void GeneratePreview(TabItem? item)
+        private void AddTab(string header, string content, string? path = null, bool pinned = true)
         {
-            var bytes = await new Labelary().Post(item!.EditorBody.Text, ((Dpi)DpiList.CurrentItem).Value, ((Model.Size)SizeList.CurrentItem).Value);
-            if (bytes is not null)
+            if (pinned)
             {
-                using MemoryStream stream = new(bytes);
-                PreviewImage = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                Tabs.Add(new TabItem(header, new TextDocument(content), path, pinned));
+                SelectedTab = Tabs.Count;
             }
+            else
+            {
+                UnpinnedTab = new TabItem(header, new TextDocument(content), path, pinned)
+                {
+                    Visibility = Visibility.Visible
+                };
+                SelectedTab = 0;
+            }
+        }
+
+        private void PinUnpinned(object? sender, EventArgs e)
+        {
+            var tab = new TabItem(UnpinnedTab.Header + '*', new TextDocument(UnpinnedTab.EditorBody.Text), UnpinnedTab.Path)
+            {
+                HasUnsavedChanges = true
+            };
+            Close(UnpinnedTab);
+
+            Tabs.Add(tab);
+            SelectedTab = Tabs.Count;
         }
     }
 }

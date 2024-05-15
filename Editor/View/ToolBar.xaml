@@ -1,0 +1,186 @@
+﻿<UserControl
+    x:Class="Editor.View.ToolBar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:viewmodel="clr-namespace:Editor.ViewModel"
+    d:DataContext="{d:DesignInstance Type=viewmodel:EditorViewModel}"
+    mc:Ignorable="d">
+    <GroupBox>
+        <DockPanel
+            LastChildFill="False">
+            <ToolBarTray
+                IsLocked="True"
+                DockPanel.Dock="Left">
+                <ToolBar>
+                    <Button
+                        x:Name="newButton"
+                        Margin="5,0"
+                        Background="{x:Null}"
+                        Command="{Binding NewFile}">
+                        <Image
+                            Margin="2,5"
+                            Width="16">
+                            <Image.Source>
+                                <BitmapImage
+                                    UriSource="/Editor;component/Resources/new.png" />
+                            </Image.Source>
+                        </Image>
+                    </Button>
+                    <Button
+                        x:Name="openButton"
+                        Margin="5,0"
+                        Background="{x:Null}"
+                        Command="{Binding OpenFile}">
+                        <Image
+                            Margin="2,5"
+                            Width="16">
+                            <Image.Source>
+                                <BitmapImage
+                                    UriSource="/Editor;component/Resources/open.png" />
+                            </Image.Source>
+                        </Image>
+                    </Button>
+                    <Button
+                        x:Name="saveButton"
+                        Margin="5,0"
+                        Background="{x:Null}"
+                        Command="{Binding SaveFile}">
+                        <Image
+                            Margin="2,5"
+                            Width="16">
+                            <Image.Source>
+                                <BitmapImage
+                                    UriSource="/Editor;component/Resources/save.png" />
+                            </Image.Source>
+                            <Image.Style>
+                                <Style
+                                    TargetType="Image">
+                                    <Style.Triggers>
+                                        <Trigger
+                                            Property="IsEnabled"
+                                            Value="False">
+                                            <Setter
+                                                Property="Opacity"
+                                                Value="0.5" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                    </Button>
+                    <Button
+                        x:Name="saveAllButton"
+                        Margin="5,0"
+                        Background="{x:Null}"
+                        Command="{Binding SaveAllFiles}">
+                        <Image
+                            Margin="2,5"
+                            Width="16">
+                            <Image.Source>
+                                <BitmapImage
+                                    UriSource="/Editor;component/Resources/save-all.png" />
+                            </Image.Source>
+                            <Image.Style>
+                                <Style
+                                    TargetType="Image">
+                                    <Style.Triggers>
+                                        <Trigger
+                                            Property="IsEnabled"
+                                            Value="False">
+                                            <Setter
+                                                Property="Opacity"
+                                                Value="0.5" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                    </Button>
+                </ToolBar>
+            </ToolBarTray>
+
+            <ToolBarTray
+                IsLocked="True"
+                DockPanel.Dock="Right">
+                <ToolBar>
+                    <Button
+                        x:Name="previewButton"
+                        Margin="5,0"
+                        Command="{Binding PreviewLabel}">
+                        <DockPanel>
+                            <TextBlock
+                                DockPanel.Dock="Right"
+                                VerticalAlignment="Center"
+                                Margin="5,0"
+                                Text="Preview [F5]" />
+                            <Image
+                                DockPanel.Dock="Left"
+                                Margin="2,5"
+                                Width="16">
+                                <Image.Source>
+                                    <BitmapImage
+                                        UriSource="/Editor;component/Resources/preview.png" />
+                                </Image.Source>
+                                <Image.Style>
+                                    <Style
+                                        TargetType="Image">
+                                        <Style.Triggers>
+                                            <Trigger
+                                                Property="IsEnabled"
+                                                Value="False">
+                                                <Setter
+                                                    Property="Opacity"
+                                                    Value="0.5" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </DockPanel>
+                    </Button>
+                    <Button
+                        x:Name="printButton"
+                        Margin="5,0">
+                        <DockPanel>
+                            <TextBlock
+                                DockPanel.Dock="Right"
+                                VerticalAlignment="Center"
+                                Margin="5,0"
+                                Text="Imprimir [F6]" />
+                            <Image
+                                DockPanel.Dock="Left"
+                                Margin="2,5"
+                                Width="16">
+                                <Image.Source>
+                                    <BitmapImage
+                                        UriSource="/Editor;component/Resources/print.png" />
+                                </Image.Source>
+                                <Image.Style>
+                                    <Style
+                                        TargetType="Image">
+                                        <Style.Triggers>
+                                            <Trigger
+                                                Property="IsEnabled"
+                                                Value="False">
+                                                <Setter
+                                                    Property="Opacity"
+                                                    Value="0.5" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </DockPanel>
+                    </Button>
+                    <ComboBox>
+                        <ComboBoxItem
+                            Content="TODO!"
+                            IsSelected="True" />
+                    </ComboBox>
+                </ToolBar>
+            </ToolBarTray>
+        </DockPanel>
+    </GroupBox>
+</UserControl>

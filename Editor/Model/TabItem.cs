@@ -2,15 +2,31 @@
 using ICSharpCode.AvalonEdit.Document;
 using Microsoft.Win32;
 using System.IO;
+using System.Windows;
 
 namespace Editor.Model
 {
     public class TabItem : ObservableObject
     {
-        public string? Path { get; set; }
-        public bool HasUnsavedChanes { get; set; } = false;
+        public event EventHandler? IsModified;
 
-        private string _header;
+        public TextDocument EditorBody { get; set; }
+        public string? Path { get; set; }
+        public bool Pinned { get; set; } = false;
+
+        private bool _hasUnsavedChanges = false;
+
+        public bool HasUnsavedChanges
+        {
+            get => _hasUnsavedChanges;
+            set
+            {
+                _hasUnsavedChanges = value;
+                OnPropertyChanged(nameof(HasUnsavedChanges));
+            }
+        }
+
+        private string _header = null!;
 
         public string Header
         {
@@ -18,35 +34,53 @@ namespace Editor.Model
             set
             {
                 _header = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(Header));
             }
         }
 
-        public TextDocument EditorBody { get; set; }
+        private Visibility _visibility;
 
-        public TabItem(string header, TextDocument editorBody, string? path = null)
+        public Visibility Visibility
+        {
+            get => _visibility;
+            set
+            {
+                _visibility = value;
+                OnPropertyChanged(nameof(Visibility));
+            }
+        }
+
+        public TabItem(string header, TextDocument editorBody, string? path = null, bool pinned = true)
         {
             Path = path;
-            _header = header;
+            Pinned = pinned;
+            Header = header;
             EditorBody = editorBody;
             EditorBody.TextChanged += UnsavedChanges;
         }
 
         private void UnsavedChanges(object? sender, EventArgs e)
         {
-            Header += '*';
-            HasUnsavedChanes = true;
-            EditorBody.TextChanged -= UnsavedChanges;
+            if (!Pinned)
+            {
+                IsModified?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                Header += '*';
+                HasUnsavedChanges = true;
+                EditorBody.TextChanged -= UnsavedChanges;
+            }
         }
 
-        public static void SaveItem(TabItem? item)
+        public void SaveItem()
         {
-            if (item is not null && item.HasUnsavedChanes)
+            if (HasUnsavedChanges)
             {
-                if (item.Path is not null)
+                if (Path is not null)
                 {
-                    File.WriteAllText(item.Path, item.EditorBody.Text);
-                    item.Header = item.Header.Remove(item.Header.LastIndexOf('*'));
+                    File.WriteAllText(Path, EditorBody.Text);
+                    Header = Header.Remove(Header.LastIndexOf('*'));
                 }
                 else
                 {
@@ -57,14 +91,14 @@ namespace Editor.Model
 
                     if (dialog.ShowDialog() == true)
                     {
-                        File.WriteAllText(dialog.FileName, item.EditorBody.Text);
-                        item.Header = dialog.SafeFileName;
-                        item.Path = dialog.FileName;
+                        File.WriteAllText(dialog.FileName, EditorBody.Text);
+                        Header = dialog.SafeFileName;
+                        Path = dialog.FileName;
                     }
                 }
 
-                item.EditorBody.TextChanged += item.UnsavedChanges;
-                item.HasUnsavedChanes = false;
+                EditorBody.TextChanged += UnsavedChanges;
+                HasUnsavedChanges = false;
             }
         }
     }

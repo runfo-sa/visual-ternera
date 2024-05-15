@@ -1,10 +1,10 @@
-﻿using Cohere.ViewModel;
+﻿using AdonisUI.Controls;
+using Cohere.ViewModel;
 using Comparator.ViewModel;
 using Core;
 using Editor.ViewModel;
 using Main.Model;
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Threading;
 
 namespace Main.ViewModel
@@ -64,7 +64,7 @@ namespace Main.ViewModel
             string rc = GitTag.RunGitCommand(
                 "for-each-ref",
                 "--format=\"%(refname:short)|%(creatordate:format:%Y/%m/%d %I:%M)|%(subject)\" \"refs/tags/*\"",
-                "C:\\Projects\\VisualTernera\\TestRepo"
+                "C:\\Users\\Agustin.Marco\\Projects\\Apps\\C#\\visual_ternera\\IDE\\TestRepo"
             );
             Tag = GitTag.Parse(rc);
         }
@@ -75,7 +75,7 @@ namespace Main.ViewModel
         {
             return new RelayCommand(a =>
             {
-                new Window
+                new AdonisWindow
                 {
                     Content = new T() { },
                     Title = "Visual Ternera - " + T.Title,

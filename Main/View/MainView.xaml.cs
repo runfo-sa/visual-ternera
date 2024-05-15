@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using AdonisUI.Controls;
+using System.Diagnostics;
 
 namespace Main
 {
-    public partial class MainView : Window
+    public partial class MainView : AdonisWindow
     {
         public MainView()
         {

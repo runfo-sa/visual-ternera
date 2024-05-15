@@ -11,7 +11,7 @@ namespace Main.Model
         {
             var dateTime = (DateTime)value;
             if (dateTime < DateTime.Now.AddHours(-4))
-                return "#815e3b";
+                return "#585871";
 
             return Brushes.Transparent;
         }

@@ -1,8 +1,8 @@
 ﻿namespace Editor.Model
 {
-    public class LabelFile(string Path)
+    public class LabelFile(string path)
     {
-        public string Path { get; } = Path;
-        public string Name => System.IO.Path.GetFileName(Path);
+        public string Path => path;
+        public string Name => System.IO.Path.GetFileName(path).ToLowerInvariant();
     }
 }
