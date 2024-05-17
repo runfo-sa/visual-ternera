@@ -12,10 +12,16 @@
     <None Remove="Resources\open.png" />
     <None Remove="Resources\preview.png" />
     <None Remove="Resources\print.png" />
+    <None Remove="Resources\rotate-left.png" />
+    <None Remove="Resources\rotate-right.png" />
     <None Remove="Resources\save-all.png" />
     <None Remove="Resources\save.png" />
     <None Remove="Resources\zoom-in.png" />
     <None Remove="Resources\zoom-out.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\rotate-left.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +31,7 @@
   <ItemGroup>
     <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
     <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.5" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
     <PackageReference Include="YamlDotNet" Version="15.1.4" />
   </ItemGroup>
@@ -34,6 +41,7 @@
     <Resource Include="Resources\open.png" />
     <Resource Include="Resources\preview.png" />
     <Resource Include="Resources\print.png" />
+    <Resource Include="Resources\rotate-right.png" />
     <Resource Include="Resources\save-all.png" />
     <Resource Include="Resources\save.png" />
     <Resource Include="Resources\zoom-in.png" />

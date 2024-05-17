@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:viewmodel="clr-namespace:Editor.ViewModel"
+    xmlns:model="clr-namespace:Editor.Model"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=viewmodel:PreviewViewModel}"
     d:DesignHeight="450"
@@ -29,48 +30,8 @@
                 FontSize="22"
                 VerticalAlignment="Center" />
             <Button
-                Content="↻"
                 Command="{Binding RotateRight}"
                 DockPanel.Dock="Right"
-                FontWeight="DemiBold"
-                FontFamily="16"
-                VerticalAlignment="Center" />
-            <Separator
-                Width="10"
-                Opacity="0"
-                DockPanel.Dock="Right" />
-            <Button
-                Content="↺"
-                Command="{Binding RotateLeft}"
-                FontWeight="DemiBold"
-                FontFamily="16"
-                DockPanel.Dock="Right"
-                VerticalAlignment="Center" />
-            <Rectangle
-                DockPanel.Dock="Right"
-                VerticalAlignment="Stretch"
-                Width="1"
-                Margin="9,6,9,6"
-                Stroke="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" />
-            <ComboBox
-                DockPanel.Dock="Right"
-                VerticalAlignment="Center"
-                MaxWidth="60">
-                <ComboBoxItem
-                    Selector.IsSelected="True">
-                    <TextBlock
-                        Text="100%" />
-                </ComboBoxItem>
-            </ComboBox>
-            <Rectangle
-                DockPanel.Dock="Right"
-                VerticalAlignment="Stretch"
-                Width="1"
-                Margin="9,6,9,6"
-                Stroke="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}" />
-            <Button
-                DockPanel.Dock="Right"
-                Command="{Binding ZoomOut}"
                 FontWeight="DemiBold"
                 FontFamily="16"
                 VerticalAlignment="Center">
@@ -79,7 +40,7 @@
                     Width="16">
                     <Image.Source>
                         <BitmapImage
-                            UriSource="/Editor;component/Resources/zoom-out.png" />
+                            UriSource="/Editor;component/Resources/rotate-right.png" />
                     </Image.Source>
                     <Image.Style>
                         <Style
@@ -98,21 +59,21 @@
                 </Image>
             </Button>
             <Separator
-                DockPanel.Dock="Right"
                 Width="10"
-                Opacity="0" />
+                Opacity="0"
+                DockPanel.Dock="Right" />
             <Button
-                DockPanel.Dock="Right"
-                Command="{Binding ZoomIn}"
+                Command="{Binding RotateLeft}"
                 FontWeight="DemiBold"
                 FontFamily="16"
+                DockPanel.Dock="Right"
                 VerticalAlignment="Center">
                 <Image
                     Margin="2,5"
                     Width="16">
                     <Image.Source>
                         <BitmapImage
-                            UriSource="/Editor;component/Resources/zoom-in.png" />
+                            UriSource="/Editor;component/Resources/rotate-left.png" />
                     </Image.Source>
                     <Image.Style>
                         <Style
@@ -132,7 +93,8 @@
             </Button>
         </DockPanel>
 
-        <Border
+        <model:ZoomBorder
+            ClipToBounds="True"
             Grid.Row="1"
             Margin="5"
             BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer4BorderBrush}}"
@@ -141,7 +103,7 @@
             <Image
                 Source="{Binding PreviewImage}"
                 SnapsToDevicePixels="True" />
-        </Border>
+        </model:ZoomBorder>
 
         <DockPanel
             Margin="5"

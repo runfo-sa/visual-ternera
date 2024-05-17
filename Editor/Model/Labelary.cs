@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
-using System.Text.Json;
 using YamlDotNet.Serialization;
 
 namespace Editor.Model
@@ -14,8 +13,14 @@ namespace Editor.Model
 
         private string _content = content;
 
-        public Labelary FillVariables()
+        public string Content => _content;
+
+        public Labelary FillVariables(Core.Settings settings)
         {
+            var dbContext = new TestVarsDbContext(settings.SqlConnection);
+            List<TestVar> vars = [.. dbContext.EtiquetasDatosPrueba];
+            Dictionary<string, string> keyValues = vars.ToDictionary(x => x.Key, v => v.Value);
+
             int startIdx;
             int endIdx = _content.LastIndexOf("@]");
 
@@ -24,7 +29,15 @@ namespace Editor.Model
                 startIdx = _content.LastIndexOf("[@", endIdx);
                 if (startIdx > 0)
                 {
-                    Trace.WriteLine(_content[(startIdx + 2)..endIdx]);
+                    var key = _content[(startIdx + 2)..endIdx].ToLower();
+                    if (keyValues.TryGetValue(key, out var value))
+                    {
+                        _content = _content.Replace($"[@{key}@]", value, StringComparison.CurrentCultureIgnoreCase);
+                    }
+                    else
+                    {
+                        _content = _content.Replace($"[@{key}@]", "", StringComparison.CurrentCultureIgnoreCase);
+                    }
                 }
                 endIdx = _content.LastIndexOf("@]", startIdx);
             }
@@ -57,14 +70,14 @@ namespace Editor.Model
         {
             try
             {
-                StringContent jsonBody = new(
-                    JsonSerializer.Serialize(_content),
+                StringContent body = new(
+                    @_content,
                     Encoding.ASCII,
                     "application/x-www-form-urlencoded"
                 );
 
                 string uri = $"http://api.labelary.com/v1/printers/{dpi}dpmm/labels/{size}/0/";
-                HttpResponseMessage response = await _client.PostAsync(uri, jsonBody);
+                HttpResponseMessage response = await _client.PostAsync(uri, body);
                 response.EnsureSuccessStatusCode();
 
                 return await response.Content.ReadAsByteArrayAsync();

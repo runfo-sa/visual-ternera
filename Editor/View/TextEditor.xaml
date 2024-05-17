@@ -81,13 +81,15 @@
             x:Key="contentTemplate"
             DataType="{x:Type model:TabItem}">
             <avalon:TextEditor
+                Options="{Binding EditorOptions}"
                 Visibility="{Binding Visibility}"
-                WordWrap="True"
+                SyntaxHighlighting="ZPL"
                 ShowLineNumbers="True"
+                WordWrap="True"
                 FontSize="14"
                 FontFamily="Cascadia Mono Regular"
+                Foreground="#E5E9F0"
                 Background="{DynamicResource {x:Static adonisUi:Brushes.Layer4BackgroundBrush}}"
-                Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
                 Document="{Binding EditorBody}" />
         </DataTemplate>
     </UserControl.Resources>

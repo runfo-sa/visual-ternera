@@ -5,6 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:viewmodel="clr-namespace:Editor.ViewModel"
+    xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     d:DataContext="{d:DesignInstance Type=viewmodel:EditorViewModel}"
     mc:Ignorable="d">
     <GroupBox>
@@ -142,6 +143,7 @@
                     </Button>
                     <Button
                         x:Name="printButton"
+                        Command="{Binding Print}"
                         Margin="5,0">
                         <DockPanel>
                             <TextBlock
@@ -174,11 +176,11 @@
                             </Image>
                         </DockPanel>
                     </Button>
-                    <ComboBox>
-                        <ComboBoxItem
-                            Content="TODO!"
-                            IsSelected="True" />
-                    </ComboBox>
+                    <ComboBox
+                        Margin="5,0"
+                        Style="{StaticResource {x:Type ComboBox}}"
+                        ItemsSource="{Binding Printers}"
+                        SelectedIndex="1" />
                 </ToolBar>
             </ToolBarTray>
         </DockPanel>

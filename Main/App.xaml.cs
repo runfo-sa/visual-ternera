@@ -1,7 +1,9 @@
-﻿using Main.ViewModel;
+﻿using ICSharpCode.AvalonEdit.Highlighting;
+using Main.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Markup;
 using YamlDotNet.Serialization;
@@ -27,6 +29,21 @@ namespace Main
             ServiceCollection services = new();
             ConfigureServices(services);
             serviceProvider = services.BuildServiceProvider();
+
+            var assembly = Assembly.GetExecutingAssembly();
+            string resourceName = assembly.GetManifestResourceNames()
+                .Single(str => str.EndsWith("ZPL.xshd"));
+
+            var stream = assembly.GetManifestResourceStream(resourceName);
+            using var reader = new System.Xml.XmlTextReader(stream!);
+            HighlightingManager.Instance.RegisterHighlighting(
+                "ZPL",
+                [],
+                ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(
+                    reader,
+                    HighlightingManager.Instance
+                )
+            );
         }
 
         private static void ConfigureServices(ServiceCollection services)

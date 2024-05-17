@@ -3,8 +3,10 @@ using Editor.Model;
 using ICSharpCode.AvalonEdit.Document;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.Drawing.Printing;
 using System.IO;
 using System.Windows;
+using System.Windows.Data;
 
 namespace Editor.ViewModel
 {
@@ -44,6 +46,10 @@ namespace Editor.ViewModel
                 OnPropertyChanged(nameof(SelectedTab));
             }
         }
+
+        private readonly CollectionView _printers = new(PrinterSettings.InstalledPrinters);
+
+        public CollectionView Printers => _printers;
 
         public RelayCommand OpenFile => new(Open);
         public RelayCommand<TabItem> CloseTab => new(Close);
@@ -94,6 +100,14 @@ namespace Editor.ViewModel
             AddTab(UnpinnedTab.Header, UnpinnedTab.EditorBody.Text, UnpinnedTab.Path);
             Close(UnpinnedTab);
         });
+
+        public RelayCommand Print => new(_ =>
+        {
+            var tab = SelectedTab == 0 ? UnpinnedTab : Tabs[SelectedTab - 1];
+            var labelary = new Labelary(tab.EditorBody.Text).FillVariables(Settings);
+
+            PrinterHelper.SendStringToPrinter(Printers.CurrentItem.ToString()!, labelary.Content);
+        }, _ => (SelectedTab == 0) ? UnpinnedTab.Visibility == Visibility.Visible : (Tabs.Count > 0 && Tabs[SelectedTab - 1] != null));
 
         public EditorViewModel(Settings settings) : base(settings)
         {

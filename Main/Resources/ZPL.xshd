@@ -1,0 +1,28 @@
+﻿<SyntaxDefinition name="ZPL" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+	<Color name="Comment" foreground="#6B7994" />
+	<Color name="String" foreground="#A3BE8C" />
+	<Color name="Keywords" foreground="#81A1C1" />
+	<Color name="Numbers" foreground="#B48EAD" />
+	<Color name="Variable" foreground="#88C0D0" />
+	<Color name="Arguments" foreground="#8FBCBB" />
+
+	<RuleSet>
+		<Span color="Comment" begin="\^FX" />
+
+		<Rule color="Keywords" fontWeight="bold">
+			\^[a-zA-z]?[a-zA-z]
+		</Rule>
+
+		<Rule color="Variable">
+			\[@(.+?)@\]
+		</Rule>
+
+		<Rule color="String">
+			(?&lt;=\^FD)(.+?)(?=\[@)|(?&lt;=@\])(.+?)(?=\[@)|(?&lt;=@\])(.+?)(?=\^FS)|(?&lt;=\^FD)(.+)(?=\^FS)
+		</Rule>
+
+		<Rule color="Numbers">
+			(\d+(\.[0-9]+)? | \.[0-9]+)
+		</Rule>
+	</RuleSet>
+</SyntaxDefinition>

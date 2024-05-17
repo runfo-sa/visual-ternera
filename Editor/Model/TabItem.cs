@@ -1,4 +1,5 @@
 ﻿using Core;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using Microsoft.Win32;
 using System.IO;
@@ -50,6 +51,22 @@ namespace Editor.Model
             }
         }
 
+        private TextEditorOptions _editorOptions = new()
+        {
+            ConvertTabsToSpaces = true,
+            HighlightCurrentLine = true
+        };
+
+        public TextEditorOptions EditorOptions
+        {
+            get => _editorOptions;
+            set
+            {
+                _editorOptions = value;
+                OnPropertyChanged(nameof(EditorOptions));
+            }
+        }
+
         public TabItem(string header, TextDocument editorBody, string? path = null, bool pinned = true)
         {
             Path = path;
@@ -65,7 +82,7 @@ namespace Editor.Model
             {
                 IsModified?.Invoke(this, EventArgs.Empty);
             }
-            else
+            else if (!HasUnsavedChanges)
             {
                 Header += '*';
                 HasUnsavedChanges = true;

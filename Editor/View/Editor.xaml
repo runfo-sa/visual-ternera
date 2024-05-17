@@ -12,6 +12,14 @@
     d:DataContext="{d:DesignInstance Type=viewmodel:EditorViewModel}"
     d:DesignHeight="720"
     d:DesignWidth="1260">
+    <UserControl.InputBindings>
+        <KeyBinding
+            Command="{Binding PreviewLabel}"
+            Key="F5" />
+        <KeyBinding
+            Command="{Binding Print}"
+            Key="F6" />
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition

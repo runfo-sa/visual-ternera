@@ -50,21 +50,11 @@ namespace Editor.ViewModel
             PreviewAngle = angle < 0.0 ? 270.0 : angle;
         }, p => PreviewImage is not null);
 
-        public RelayCommand ZoomIn => new(_ =>
-        {
-            PreviewImage = new TransformedBitmap(PreviewImage, new ScaleTransform(0.75, 0.75));
-        });
-
-        public RelayCommand ZoomOut => new(_ =>
-        {
-            PreviewImage = new TransformedBitmap(PreviewImage, new ScaleTransform(1.25, 1.25));
-        });
-
         public async void GeneratePreview(TabItem? item)
         {
             var content = item!.EditorBody.Text;
             var labelary = new Labelary(content)
-                .FillVariables()
+                .FillVariables(Settings)
                 .LoadFonts();
             var bytes = await labelary.Post(((LabelDpi)DpiList.CurrentItem).Value, ((LabelSize)SizeList.CurrentItem).Value);
             if (bytes is not null)
