@@ -81,7 +81,6 @@
             x:Key="contentTemplate"
             DataType="{x:Type model:TabItem}">
             <avalon:TextEditor
-                Options="{Binding EditorOptions}"
                 Visibility="{Binding Visibility}"
                 SyntaxHighlighting="ZPL"
                 ShowLineNumbers="True"

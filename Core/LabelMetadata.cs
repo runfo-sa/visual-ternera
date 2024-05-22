@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Editor.Model
+namespace Core
 {
     public class LabelMetadata
     {

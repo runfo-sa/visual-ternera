@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:viewmodel="clr-namespace:Editor.ViewModel"
-    xmlns:model="clr-namespace:Editor.Model"
+    xmlns:core="clr-namespace:Core;assembly=Core"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=viewmodel:PreviewViewModel}"
     d:DesignHeight="450"
@@ -93,7 +93,7 @@
             </Button>
         </DockPanel>
 
-        <model:ZoomBorder
+        <core:ZoomBorder
             ClipToBounds="True"
             Grid.Row="1"
             Margin="5"
@@ -103,7 +103,7 @@
             <Image
                 Source="{Binding PreviewImage}"
                 SnapsToDevicePixels="True" />
-        </model:ZoomBorder>
+        </core:ZoomBorder>
 
         <DockPanel
             Margin="5"

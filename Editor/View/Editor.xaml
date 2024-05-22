@@ -8,6 +8,7 @@
     xmlns:view="clr-namespace:Editor.View"
     xmlns:model="clr-namespace:Editor.Model"
     xmlns:viewmodel="clr-namespace:Editor.ViewModel"
+    xmlns:core="clr-namespace:Core;assembly=Core"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=viewmodel:EditorViewModel}"
     d:DesignHeight="720"
@@ -116,7 +117,7 @@
                         </HierarchicalDataTemplate>
 
                         <DataTemplate
-                            DataType="{x:Type model:LabelFile}">
+                            DataType="{x:Type core:LabelFile}">
                             <TextBlock
                                 HorizontalAlignment="Stretch"
                                 Text="{Binding Name}" />

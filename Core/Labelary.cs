@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Text;
 using YamlDotNet.Serialization;
 
-namespace Editor.Model
+namespace Core
 {
     public class Labelary(string content)
     {
@@ -15,7 +15,7 @@ namespace Editor.Model
 
         public string Content => _content;
 
-        public Labelary FillVariables(Core.Settings settings)
+        public Labelary FillVariables(Settings settings)
         {
             var dbContext = new TestVarsDbContext(settings.SqlConnection);
             List<TestVar> vars = [.. dbContext.EtiquetasDatosPrueba];

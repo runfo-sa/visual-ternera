@@ -81,7 +81,7 @@ namespace Main.ViewModel
                     Title = "Visual Ternera - " + T.Title,
                     DataContext = Activator.CreateInstance(typeof(K), settings)
                 }.Show();
-            }, p => true);
+            });
         }
 
         private void UpdateTime(object? sender, EventArgs args)

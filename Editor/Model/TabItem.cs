@@ -1,5 +1,4 @@
 ﻿using Core;
-using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using Microsoft.Win32;
 using System.IO;
@@ -48,22 +47,6 @@ namespace Editor.Model
             {
                 _visibility = value;
                 OnPropertyChanged(nameof(Visibility));
-            }
-        }
-
-        private TextEditorOptions _editorOptions = new()
-        {
-            ConvertTabsToSpaces = true,
-            HighlightCurrentLine = true
-        };
-
-        public TextEditorOptions EditorOptions
-        {
-            get => _editorOptions;
-            set
-            {
-                _editorOptions = value;
-                OnPropertyChanged(nameof(EditorOptions));
             }
         }
 

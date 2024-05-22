@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Editor.Model
+namespace Core
 {
     /// <summary>
     /// Representación del estado de un cliente en una tabla.

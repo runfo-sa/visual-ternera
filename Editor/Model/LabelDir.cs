@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Core;
+using System.Collections;
 using System.Collections.ObjectModel;
 
 namespace Editor.Model

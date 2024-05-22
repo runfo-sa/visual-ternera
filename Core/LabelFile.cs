@@ -1,4 +1,4 @@
-﻿namespace Editor.Model
+﻿namespace Core
 {
     public class LabelFile(string path)
     {
