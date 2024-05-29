@@ -106,7 +106,7 @@ namespace Editor.ViewModel
             var tab = SelectedTab == 0 ? UnpinnedTab : Tabs[SelectedTab - 1];
             var labelary = new Labelary(tab.EditorBody.Text).FillVariables(Settings);
 
-            PrinterHelper.SendStringToPrinter(Printers.CurrentItem.ToString()!, labelary.Content);
+            PrinterHelper.SendStringToPrinter(Printers.CurrentItem.ToString()!, labelary.Content, tab.Header);
         }, _ => (SelectedTab == 0) ? UnpinnedTab.Visibility == Visibility.Visible : (Tabs.Count > 0 && Tabs[SelectedTab - 1] != null));
 
         public EditorViewModel(Settings settings) : base(settings)

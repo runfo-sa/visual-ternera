@@ -92,39 +92,36 @@
             </Grid.ColumnDefinitions>
 
             <!-- TreeView -->
-            <DockPanel
-                LastChildFill="True">
-                <TreeView
-                    x:Name="treeView"
-                    ItemsSource="{Binding RootDir}"
-                    FontSize="14">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger
-                            EventName="SelectedItemChanged">
-                            <i:InvokeCommandAction
-                                Command="{Binding OpenSelected}"
-                                CommandParameter="{Binding ElementName=treeView, Path=SelectedItem}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+            <TreeView
+                x:Name="treeView"
+                ItemsSource="{Binding RootDir}"
+                FontSize="14">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger
+                        EventName="SelectedItemChanged">
+                        <i:InvokeCommandAction
+                            Command="{Binding OpenSelected}"
+                            CommandParameter="{Binding ElementName=treeView, Path=SelectedItem}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
 
-                    <TreeView.Resources>
-                        <HierarchicalDataTemplate
-                            DataType="{x:Type model:LabelDir}"
-                            ItemsSource="{Binding Items}">
-                            <TextBlock
-                                Text="{Binding Name}"
-                                FontWeight="DemiBold" />
-                        </HierarchicalDataTemplate>
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate
+                        DataType="{x:Type core:LabelDir}"
+                        ItemsSource="{Binding Items}">
+                        <TextBlock
+                            Text="{Binding Name}"
+                            FontWeight="DemiBold" />
+                    </HierarchicalDataTemplate>
 
-                        <DataTemplate
-                            DataType="{x:Type core:LabelFile}">
-                            <TextBlock
-                                HorizontalAlignment="Stretch"
-                                Text="{Binding Name}" />
-                        </DataTemplate>
-                    </TreeView.Resources>
-                </TreeView>
-            </DockPanel>
+                    <DataTemplate
+                        DataType="{x:Type core:LabelFile}">
+                        <TextBlock
+                            HorizontalAlignment="Stretch"
+                            Text="{Binding Name}" />
+                    </DataTemplate>
+                </TreeView.Resources>
+            </TreeView>
 
             <GridSplitter
                 Grid.Column="1"

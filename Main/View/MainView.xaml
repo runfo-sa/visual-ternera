@@ -101,11 +101,21 @@
                     Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Label
-                Content="Estado"
-                Grid.Row="0"
-                FontWeight="DemiBold"
-                FontSize="26" />
+            <DockPanel
+                LastChildFill="False">
+                <Label
+                    Content="Estado"
+                    FontWeight="DemiBold"
+                    FontSize="26" />
+                <Button
+                    Command="{Binding ChangeTheme}"
+                    DockPanel.Dock="Right">
+                    <Image
+                        Margin="2,5"
+                        Width="16"
+                        Source="{Binding ThemeIcon}" />
+                </Button>
+            </DockPanel>
 
             <StackPanel
                 Grid.Row="1"
@@ -113,50 +123,48 @@
                 Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}"
                 VerticalAlignment="Center">
                 <DataGrid
-                        ItemsSource="{Binding ClientsList}"
-                        AutoGenerateColumns="False"
-                        IsReadOnly="True"
-                        FontSize="16"
-                        ColumnWidth="*">
-                        <DataGrid.RowStyle>
-                            <Style
-                                TargetType="DataGridRow">
-                                <Setter
-                                    Property="FontWeight"
-                                    Value="Regular" />
-                                <Setter
-                                    Property="Background"
-                                    Value="{Binding UltimaConexion, Converter={StaticResource DateColorConverter}}" />
-                                <Setter
-                                    Property="Foreground"
-                                    Value="{Binding Estado, Converter={StaticResource StatusColorConverter}}" />
-                            </Style>
-                        </DataGrid.RowStyle>
+                    ItemsSource="{Binding ClientsList}"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True"
+                    FontSize="16"
+                    ColumnWidth="*">
+                    <DataGrid.RowStyle>
+                        <Style
+                            BasedOn="{StaticResource {x:Type DataGridRow}}"
+                            TargetType="{x:Type DataGridRow}">
+                            <Setter
+                                Property="Background"
+                                Value="{Binding UltimaConexion, Converter={StaticResource DateColorConverter}}" />
+                            <Setter
+                                Property="Foreground"
+                                Value="{Binding Estado, Converter={StaticResource StatusColorConverter}}" />
+                        </Style>
+                    </DataGrid.RowStyle>
 
-                        <DataGrid.Columns>
-                            <DataGridTextColumn
-                                Header="Cliente"
-                                Binding="{Binding Cliente}" />
-                            <DataGridTextColumn
-                                Header="Estado"
-                                Binding="{Binding Estado, Converter={StaticResource StatusNameConverter}}" />
-                            <DataGridTextColumn
-                                Header="Ultima Conexión"
-                                Binding="{Binding UltimaConexion}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Margin="0,25,0,0">
-                        <Button
-                            Command="{Binding RefreshClients}"
-                            FontWeight="DemiBold"
-                            FontSize="14">Refrescar</Button>
-                        <TextBlock
-                            Margin="10"
-                            FontSize="14"
-                            Text="{Binding LastRefreshed, StringFormat='Ultimo análisis: hace \{0\} minutos'}" />
-                    </StackPanel>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn
+                            Header="Cliente"
+                            Binding="{Binding Cliente}" />
+                        <DataGridTextColumn
+                            Header="Estado"
+                            Binding="{Binding Estado, Converter={StaticResource StatusNameConverter}}" />
+                        <DataGridTextColumn
+                            Header="Ultima Conexión"
+                            Binding="{Binding UltimaConexion}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <StackPanel
+                    Orientation="Horizontal"
+                    Margin="0,25,0,0">
+                    <Button
+                        Command="{Binding RefreshClients}"
+                        FontWeight="DemiBold"
+                        FontSize="14">Refrescar</Button>
+                    <TextBlock
+                        Margin="10"
+                        FontSize="14"
+                        Text="{Binding LastRefreshed, StringFormat='Ultimo análisis: hace \{0\} minutos'}" />
+                </StackPanel>
             </StackPanel>
 
             <DockPanel

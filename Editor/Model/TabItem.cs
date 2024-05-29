@@ -81,6 +81,8 @@ namespace Editor.Model
                 {
                     File.WriteAllText(Path, EditorBody.Text);
                     Header = Header.Remove(Header.LastIndexOf('*'));
+                    EditorBody.TextChanged += UnsavedChanges;
+                    HasUnsavedChanges = false;
                 }
                 else
                 {
@@ -94,11 +96,10 @@ namespace Editor.Model
                         File.WriteAllText(dialog.FileName, EditorBody.Text);
                         Header = dialog.SafeFileName;
                         Path = dialog.FileName;
+                        EditorBody.TextChanged += UnsavedChanges;
+                        HasUnsavedChanges = false;
                     }
                 }
-
-                EditorBody.TextChanged += UnsavedChanges;
-                HasUnsavedChanges = false;
             }
         }
     }

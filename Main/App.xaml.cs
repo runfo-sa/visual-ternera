@@ -15,6 +15,11 @@ namespace Main
     {
         private readonly IServiceProvider serviceProvider;
 
+        public ResourceDictionary ThemeDictionary
+        {
+            get => Resources.MergedDictionaries[0];
+        }
+
         public App()
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("es-MX");
@@ -66,6 +71,13 @@ namespace Main
         {
             base.OnStartup(e);
             serviceProvider.GetRequiredService<MainView>().Show();
+        }
+
+        public void ChangeTheme(bool darkMode)
+        {
+            var uri = new Uri(darkMode ? "pack://application:,,,/AdonisUI;component/ColorSchemes/Dark.xaml" : "pack://application:,,,/AdonisUI;component/ColorSchemes/Light.xaml");
+            ThemeDictionary.MergedDictionaries.Clear();
+            ThemeDictionary.MergedDictionaries.Add(new ResourceDictionary() { Source = uri });
         }
     }
 }

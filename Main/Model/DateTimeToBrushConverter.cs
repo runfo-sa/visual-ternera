@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -11,7 +12,7 @@ namespace Main.Model
         {
             var dateTime = (DateTime)value;
             if (dateTime < DateTime.Now.AddHours(-4))
-                return "#585871";
+                return Application.Current.FindResource(AdonisUI.Brushes.Layer2HighlightBrush);
 
             return Brushes.Transparent;
         }

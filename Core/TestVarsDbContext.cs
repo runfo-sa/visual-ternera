@@ -18,6 +18,11 @@ namespace Core
         public string Value { get; set; } = String.Empty;
     }
 
+    public class ValorProductos
+    {
+        public string Valor { get; set; } = string.Empty;
+    }
+
     /// <summary>
     /// Instancia de conexión con una base de datos para la tabla de <see cref="TestVar"/>
     /// </summary>

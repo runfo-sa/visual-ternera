@@ -5,6 +5,8 @@ using Core;
 using Editor.ViewModel;
 using Main.Model;
 using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace Main.ViewModel
@@ -36,6 +38,40 @@ namespace Main.ViewModel
 
         public RelayCommand RefreshClients { get; set; }
         public GitTag Tag { get; set; }
+
+        private bool _darkTheme = true;
+
+        public bool DarkTheme
+        {
+            get => _darkTheme;
+            set
+            {
+                _darkTheme = value;
+                OnPropertyChanged(nameof(DarkTheme));
+            }
+        }
+
+        private BitmapImage _themeIcon = new(new Uri("/Main;component/Resources/dark-theme.png", UriKind.Relative));
+
+        public BitmapImage ThemeIcon
+        {
+            get => _themeIcon;
+            set
+            {
+                _themeIcon = value;
+                OnPropertyChanged(nameof(ThemeIcon));
+            }
+        }
+
+        public RelayCommand ChangeTheme => new(_ =>
+        {
+            DarkTheme = !DarkTheme;
+
+            var uri = (DarkTheme) ? "/Main;component/Resources/dark-theme.png" : "/Main;component/Resources/light-theme.png";
+            ThemeIcon = new BitmapImage(new Uri(uri, UriKind.Relative));
+
+            ((App)Application.Current).ChangeTheme(DarkTheme);
+        });
 
         public MainViewModel(Settings settings) : base(settings)
         {

@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using YamlDotNet.Serialization;
@@ -14,6 +17,54 @@ namespace Core
         private string _content = content;
 
         public string Content => _content;
+
+        public Labelary FillProduct(Settings settings, string codigo)
+        {
+            var context = new TestVarsDbContext(settings.SqlConnection);
+            var codigoParam = new SqlParameter("@Codigo", codigo);
+
+            int startIdx;
+            int endIdx = _content.LastIndexOf("@]");
+
+            while (endIdx > 0)
+            {
+                startIdx = _content.LastIndexOf("[@", endIdx);
+                if (startIdx > 0)
+                {
+                    var key = _content[(startIdx + 2)..endIdx].ToLower();
+                    if (key.Contains("DefinicionesCuartos", StringComparison.CurrentCultureIgnoreCase) ||
+                        key.Contains("MercaderiasTraducciones", StringComparison.CurrentCultureIgnoreCase) ||
+                        key.Contains("Temperaturas", StringComparison.CurrentCultureIgnoreCase) ||
+                        key.Contains("EAN", StringComparison.CurrentCultureIgnoreCase) ||
+                        key.Contains("FechaVencimiento", StringComparison.CurrentCultureIgnoreCase) ||
+                        key.Contains("CodSenasa", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        ReplaceVar(key, codigoParam, context);
+                    }
+                }
+                endIdx = _content.LastIndexOf("@]", startIdx);
+            }
+            return this;
+        }
+
+        private void ReplaceVar(string key, SqlParameter codigoParam, TestVarsDbContext context)
+        {
+            var argParam = new SqlParameter("@Arg", string.Concat(key.Where(Char.IsDigit)));
+            if (argParam.Value.ToString().IsNullOrEmpty())
+            {
+                argParam.Value = key[(key.LastIndexOf(";FF", StringComparison.CurrentCultureIgnoreCase) + 3)..].Replace('m', 'M');
+            }
+            var varParam = new SqlParameter("@Var", key);
+
+            var result = context.Database
+                .SqlQueryRaw<ValorProductos>("ide.CompletarProducto @Codigo, @Arg, @Var", codigoParam, argParam, varParam)
+                .ToList();
+
+            if (result.Count > 0)
+            {
+                _content = _content.Replace($"[@{key}@]", result[0].Valor, StringComparison.CurrentCultureIgnoreCase);
+            }
+        }
 
         public Labelary FillVariables(Settings settings)
         {

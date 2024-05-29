@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Editor.Model
+namespace Core
 {
     public class PrinterHelper
     {
@@ -39,14 +39,14 @@ namespace Editor.Model
         // When the function is given a printer name and an unmanaged array
         // of bytes, the function sends those bytes to the print queue.
         // Returns true on success, false on failure.
-        public static bool SendBytesToPrinter(string szPrinterName, IntPtr pBytes, Int32 dwCount)
+        public static bool SendBytesToPrinter(string szPrinterName, IntPtr pBytes, Int32 dwCount, string docName)
         {
             Int32 dwError = 0, dwWritten = 0;
             IntPtr hPrinter = new IntPtr(0);
             DOCINFOA di = new DOCINFOA();
             bool bSuccess = false; // Assume failure unless you specifically succeed.
 
-            di.pDocName = "My C#.NET RAW Document";
+            di.pDocName = $"Visual Ternera - Etiqueta::{docName}";
             di.pDataType = "RAW";
 
             // Open the printer.
@@ -75,7 +75,7 @@ namespace Editor.Model
             return bSuccess;
         }
 
-        public static bool SendFileToPrinter(string szPrinterName, string szFileName)
+        public static bool SendFileToPrinter(string szPrinterName, string szFileName, string docName)
         {
             // Open the file.
             FileStream fs = new FileStream(szFileName, FileMode.Open);
@@ -96,13 +96,13 @@ namespace Editor.Model
             // Copy the managed byte array into the unmanaged array.
             Marshal.Copy(bytes, 0, pUnmanagedBytes, nLength);
             // Send the unmanaged bytes to the printer.
-            bSuccess = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, nLength);
+            bSuccess = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, nLength, docName);
             // Free the unmanaged memory that you allocated earlier.
             Marshal.FreeCoTaskMem(pUnmanagedBytes);
             return bSuccess;
         }
 
-        public static bool SendStringToPrinter(string szPrinterName, string szString)
+        public static bool SendStringToPrinter(string szPrinterName, string szString, string docName)
         {
             IntPtr pBytes;
             Int32 dwCount;
@@ -112,7 +112,7 @@ namespace Editor.Model
             // the string to ANSI text.
             pBytes = Marshal.StringToCoTaskMemAnsi(szString);
             // Send the converted ANSI string to the printer.
-            SendBytesToPrinter(szPrinterName, pBytes, dwCount);
+            SendBytesToPrinter(szPrinterName, pBytes, dwCount, docName);
             Marshal.FreeCoTaskMem(pBytes);
             return true;
         }

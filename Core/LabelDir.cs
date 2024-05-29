@@ -1,8 +1,7 @@
-﻿using Core;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.ObjectModel;
 
-namespace Editor.Model
+namespace Core
 {
     public class LabelDir(string Name)
     {

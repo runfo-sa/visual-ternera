@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\dark-theme.png" />
+    <None Remove="Resources\light-theme.png" />
     <None Remove="Resources\ZPL.xshd" />
   </ItemGroup>
 
@@ -31,6 +33,17 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\ZPL.xshd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="office">
+      <HintPath>..\..\..\..\..\..\..\..\Windows\assembly\GAC_MSIL\office\15.0.0.0__71e9bce111e9429c\office.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\dark-theme.png" />
+    <Resource Include="Resources\light-theme.png" />
   </ItemGroup>
 
   <ItemGroup>
