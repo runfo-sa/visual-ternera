@@ -1,4 +1,4 @@
-﻿using Core;
+﻿using Core.Database.Model;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;

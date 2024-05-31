@@ -5,7 +5,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:viewmodel="clr-namespace:Editor.ViewModel"
-    xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     d:DataContext="{d:DesignInstance Type=viewmodel:EditorViewModel}"
     mc:Ignorable="d">
     <GroupBox>
@@ -19,42 +18,36 @@
                         x:Name="newButton"
                         Margin="5,0"
                         Background="{x:Null}"
+                        ToolTip="Ctrl + N"
                         Command="{Binding NewFile}">
                         <Image
                             Margin="2,5"
-                            Width="16">
-                            <Image.Source>
-                                <BitmapImage
-                                    UriSource="/Editor;component/Resources/new.png" />
-                            </Image.Source>
+                            Width="16"
+                            Source="{Binding NewIcon}">
                         </Image>
                     </Button>
                     <Button
                         x:Name="openButton"
                         Margin="5,0"
                         Background="{x:Null}"
+                        ToolTip="Ctrl + O"
                         Command="{Binding OpenFile}">
                         <Image
                             Margin="2,5"
-                            Width="16">
-                            <Image.Source>
-                                <BitmapImage
-                                    UriSource="/Editor;component/Resources/open.png" />
-                            </Image.Source>
+                            Width="16"
+                            Source="{Binding OpenIcon}">
                         </Image>
                     </Button>
                     <Button
                         x:Name="saveButton"
                         Margin="5,0"
                         Background="{x:Null}"
+                        ToolTip="Ctrl + S"
                         Command="{Binding SaveFile}">
                         <Image
                             Margin="2,5"
-                            Width="16">
-                            <Image.Source>
-                                <BitmapImage
-                                    UriSource="/Editor;component/Resources/save.png" />
-                            </Image.Source>
+                            Width="16"
+                            Source="{Binding SaveIcon}">
                             <Image.Style>
                                 <Style
                                     TargetType="Image">
@@ -75,14 +68,12 @@
                         x:Name="saveAllButton"
                         Margin="5,0"
                         Background="{x:Null}"
+                        ToolTip="Ctrl + Shift + S"
                         Command="{Binding SaveAllFiles}">
                         <Image
                             Margin="2,5"
-                            Width="16">
-                            <Image.Source>
-                                <BitmapImage
-                                    UriSource="/Editor;component/Resources/save-all.png" />
-                            </Image.Source>
+                            Width="16"
+                            Source="{Binding SaveAllIcon}">
                             <Image.Style>
                                 <Style
                                     TargetType="Image">
@@ -119,11 +110,8 @@
                             <Image
                                 DockPanel.Dock="Left"
                                 Margin="2,5"
-                                Width="16">
-                                <Image.Source>
-                                    <BitmapImage
-                                        UriSource="/Editor;component/Resources/preview.png" />
-                                </Image.Source>
+                                Width="16"
+                                Source="{Binding PreviewIcon}">
                                 <Image.Style>
                                     <Style
                                         TargetType="Image">
@@ -154,11 +142,8 @@
                             <Image
                                 DockPanel.Dock="Left"
                                 Margin="2,5"
-                                Width="16">
-                                <Image.Source>
-                                    <BitmapImage
-                                        UriSource="/Editor;component/Resources/print.png" />
-                                </Image.Source>
+                                Width="16"
+                                Source="{Binding PrintIcon}">
                                 <Image.Style>
                                     <Style
                                         TargetType="Image">

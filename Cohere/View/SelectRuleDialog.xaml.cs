@@ -1,5 +1,7 @@
 ﻿using AdonisUI.Controls;
-using Core;
+using Core.Database;
+using Core.Database.Model;
+using Core.Logic;
 using System.Collections.ObjectModel;
 
 namespace Cohere.View

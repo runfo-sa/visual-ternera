@@ -6,9 +6,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:view="clr-namespace:Editor.View"
-    xmlns:model="clr-namespace:Editor.Model"
     xmlns:viewmodel="clr-namespace:Editor.ViewModel"
-    xmlns:core="clr-namespace:Core;assembly=Core"
+    xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+    xmlns:core="clr-namespace:Core.ViewLogic;assembly=Core"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=viewmodel:EditorViewModel}"
     d:DesignHeight="720"
@@ -20,7 +20,36 @@
         <KeyBinding
             Command="{Binding Print}"
             Key="F6" />
+        <KeyBinding
+            Command="{Binding SaveFile}"
+            Key="S"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Command="{Binding OpenFile}"
+            Key="O"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Command="{Binding NewFile}"
+            Key="N"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Command="{Binding CloseTab}"
+            Key="W"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Command="{Binding SaveAllFiles}"
+            Key="S"
+            Modifiers="Ctrl+Shift" />
+        <KeyBinding
+            Command="{Binding DownSize}"
+            Key="E"
+            Modifiers="Shift" />
+        <KeyBinding
+            Command="{Binding UpSize}"
+            Key="Q"
+            Modifiers="Shift" />
     </UserControl.InputBindings>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition
@@ -36,24 +65,26 @@
             <MenuItem
                 Header="_Archivos">
                 <MenuItem
-                    Header="_Nuevo" />
+                    Header="_Nuevo"
+                    Command="{Binding NewFile}" />
                 <MenuItem
-                    Header="_Guardar" />
+                    Header="_Guardar"
+                    Command="{Binding SaveFile}" />
                 <MenuItem
-                    Header="_Guardar como..." />
+                    Header="_Guardar como..."
+                    Command="{Binding SaveAsFile}" />
                 <MenuItem
-                    Header="_Ajustes" />
+                    Header="_Ajustes"
+                    Command="{Binding OpenSettings}" />
                 <MenuItem
-                    Header="_Salir" />
+                    Header="_Salir"
+                    Click="MenuItem_Click" />
             </MenuItem>
             <MenuItem
                 Header="_Herramientas">
                 <MenuItem
-                    Header="_Comparar Etiquetas" />
-                <MenuItem
-                    Header="_Cohesionar Etiquetas" />
-                <MenuItem
                     Header="_Preview on save"
+                    IsChecked="{Binding PreviewOnSave}"
                     IsCheckable="True" />
             </MenuItem>
             <MenuItem
@@ -66,9 +97,11 @@
             <MenuItem
                 Header="_?">
                 <MenuItem
-                    Header="_Ayuda" />
+                    Header="_Ayuda"
+                    Command="{Binding HelpPopUp}" />
                 <MenuItem
-                    Header="_Acerca de" />
+                    Header="_Acerca de"
+                    Command="{Binding AboutPopUp}" />
             </MenuItem>
         </Menu>
 
@@ -91,12 +124,17 @@
                     Width="30*" />
             </Grid.ColumnDefinitions>
 
-            <!-- TreeView -->
             <TreeView
                 x:Name="treeView"
-                ItemsSource="{Binding RootDir}"
+                ItemsSource="{Binding Tree.Root}"
                 FontSize="14">
                 <i:Interaction.Triggers>
+                    <i:EventTrigger
+                        EventName="PreviewMouseDoubleClick">
+                        <i:InvokeCommandAction
+                            Command="{Binding OpenSelectedPinned}"
+                            CommandParameter="{Binding ElementName=treeView, Path=SelectedItem}" />
+                    </i:EventTrigger>
                     <i:EventTrigger
                         EventName="SelectedItemChanged">
                         <i:InvokeCommandAction
@@ -128,8 +166,35 @@
                 Background="{x:Null}"
                 HorizontalAlignment="Stretch" />
 
-            <view:TextEditor
-                Grid.Column="2" />
+            <Grid
+                Grid.Column="2">
+                <view:TextEditor />
+                <ScrollViewer
+                    Height="128"
+                    Visibility="{Binding ErrorsWindow}"
+                    VerticalAlignment="Bottom">
+                    <ScrollViewer.Background>
+                        <SolidColorBrush
+                            Color="{DynamicResource {x:Static adonisUi:Colors.ErrorColor}}"
+                            Opacity="0.75" />
+                    </ScrollViewer.Background>
+                    <DockPanel
+                        Margin="10"
+                        LastChildFill="False">
+                        <TextBlock
+                            FontWeight="DemiBold"
+                            FontSize="12"
+                            Text="{Binding PreviewErrors}" />
+                        <Button
+                            Content="⤫"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
+                            VerticalAlignment="Top"
+                            DockPanel.Dock="Right"
+                            Command="{Binding CloseErrorWindow}" />
+                    </DockPanel>
+                </ScrollViewer>
+            </Grid>
 
             <GridSplitter
                 Grid.Column="3"

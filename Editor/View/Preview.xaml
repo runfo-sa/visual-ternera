@@ -4,9 +4,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:viewmodel="clr-namespace:Editor.ViewModel"
-    xmlns:core="clr-namespace:Core;assembly=Core"
+    xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+    xmlns:core="clr-namespace:Core.ViewLogic;assembly=Core"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=viewmodel:PreviewViewModel}"
     d:DesignHeight="450"
@@ -37,11 +37,8 @@
                 VerticalAlignment="Center">
                 <Image
                     Margin="2,5"
-                    Width="16">
-                    <Image.Source>
-                        <BitmapImage
-                            UriSource="/Editor;component/Resources/rotate-right.png" />
-                    </Image.Source>
+                    Width="16"
+                    Source="{Binding RotateRightIcon}">
                     <Image.Style>
                         <Style
                             TargetType="Image">
@@ -70,11 +67,8 @@
                 VerticalAlignment="Center">
                 <Image
                     Margin="2,5"
-                    Width="16">
-                    <Image.Source>
-                        <BitmapImage
-                            UriSource="/Editor;component/Resources/rotate-left.png" />
-                    </Image.Source>
+                    Width="16"
+                    Source="{Binding RotateLeftIcon}">
                     <Image.Style>
                         <Style
                             TargetType="Image">
@@ -129,7 +123,14 @@
                 ItemsSource="{Binding SizeList}"
                 DisplayMemberPath="Display"
                 SelectedValuePath="Value"
-                FontSize="13" />
+                FontSize="13">
+                <ComboBox.ToolTip>
+                    <StackPanel>
+                        <TextBlock><Bold>Shift + E</Bold> - Para bajar un item</TextBlock>
+                        <TextBlock><Bold>Shift + Q</Bold> - Para subir un item</TextBlock>
+                    </StackPanel>
+                </ComboBox.ToolTip>
+            </ComboBox>
             <Separator
                 Width="10"
                 Opacity="0"

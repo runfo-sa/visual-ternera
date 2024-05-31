@@ -2,27 +2,29 @@
 using Cohere.ViewModel;
 using Comparator.ViewModel;
 using Core;
+using Core.Git;
+using Core.Interfaces;
+using Core.Logic;
+using Core.MVVM;
 using Editor.ViewModel;
 using Main.Model;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using YamlDotNet.Serialization;
 
 namespace Main.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        public string EditorTitle { get; } = Editor.Editor.Title;
-        public RelayCommand OpenEditor { get; set; }
-
-        public string CohereTitle { get; } = Cohere.Cohere.Title;
-        public RelayCommand OpenCohere { get; set; }
-
-        public string ComparatorTitle { get; } = Comparator.Comparator.Title;
-        public RelayCommand OpenComparator { get; set; }
-
+        public static string EditorTitle => Editor.Editor.Title;
+        public static string CohereTitle => Cohere.Cohere.Title;
+        public static string ComparatorTitle => Comparator.Comparator.Title;
         public ObservableCollection<Client> ClientsList { get; set; }
+        public GitTag GitTag { get; set; }
+        public string GitTagUri { get; set; }
 
         private int _lastRefreshed = 0;
 
@@ -32,26 +34,11 @@ namespace Main.ViewModel
             set
             {
                 _lastRefreshed = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(LastRefreshed));
             }
         }
 
-        public RelayCommand RefreshClients { get; set; }
-        public GitTag Tag { get; set; }
-
-        private bool _darkTheme = true;
-
-        public bool DarkTheme
-        {
-            get => _darkTheme;
-            set
-            {
-                _darkTheme = value;
-                OnPropertyChanged(nameof(DarkTheme));
-            }
-        }
-
-        private BitmapImage _themeIcon = new(new Uri("/Main;component/Resources/dark-theme.png", UriKind.Relative));
+        private BitmapImage _themeIcon = null!;
 
         public BitmapImage ThemeIcon
         {
@@ -65,31 +52,49 @@ namespace Main.ViewModel
 
         public RelayCommand ChangeTheme => new(_ =>
         {
-            DarkTheme = !DarkTheme;
+            Settings.Theme = Settings.Theme switch
+            {
+                Theme.Dark => Theme.Light,
+                Theme.Light => Theme.Dark,
+                _ => throw new NotImplementedException()
+            };
 
-            var uri = (DarkTheme) ? "/Main;component/Resources/dark-theme.png" : "/Main;component/Resources/light-theme.png";
+            var uri = Settings.Theme switch
+            {
+                Theme.Dark => "/Main;component/Resources/dark-theme.png",
+                Theme.Light => "/Main;component/Resources/light-theme.png",
+                _ => throw new NotImplementedException(),
+            };
+
             ThemeIcon = new BitmapImage(new Uri(uri, UriKind.Relative));
+            ((App)Application.Current).ChangeTheme(Settings.Theme);
 
-            ((App)Application.Current).ChangeTheme(DarkTheme);
+            var serializer = new SerializerBuilder().Build();
+            var yaml = serializer.Serialize(Settings);
+            File.WriteAllText("Settings.yaml", yaml);
         });
 
-        public MainViewModel(Settings settings) : base(settings)
+        public RelayCommand OpenEditor => OpenWindow<Editor.Editor, EditorViewModel>(Settings);
+        public RelayCommand OpenCohere => OpenWindow<Cohere.Cohere, CohereViewModel>(Settings);
+        public RelayCommand OpenComparator => OpenWindow<Comparator.Comparator, ComparatorViewModel>(Settings);
+        public RelayCommand RefreshClients => new(_ => UpdateClients());
+
+        public MainViewModel(Core.Logic.Settings settings) : base(settings)
         {
-            var dbContext = new ClientDbContext(Settings.SqlConnection);
+            ThemeIcon = new(new Uri($"/Main;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-theme.png", UriKind.Relative));
+
+            var dbContext = new ServiceDbContext(Settings.SqlConnection);
             ClientsList = [.. dbContext.EstadoCliente];
 
-            OpenEditor = OpenWindow<Editor.Editor, EditorViewModel>(Settings);
-            OpenCohere = OpenWindow<Cohere.Cohere, CohereViewModel>(Settings);
-            OpenComparator = OpenWindow<Comparator.Comparator, ComparatorViewModel>(Settings);
-            RefreshClients = new RelayCommand(a => UpdateClients(), p => true);
-
+            // Reloj que refresca la lista de clientes cada 30 minutos
             DispatcherTimer refreshTimer = new()
             {
-                Interval = TimeSpan.FromMinutes(60)
+                Interval = TimeSpan.FromMinutes(30)
             };
             refreshTimer.Tick += RefreshTimer;
             refreshTimer.Start();
 
+            // Reloj que actualiza el tiempo pasado desde la ultima actualizacion
             DispatcherTimer updateTime = new()
             {
                 Interval = TimeSpan.FromMinutes(1)
@@ -100,12 +105,18 @@ namespace Main.ViewModel
             string rc = GitTag.RunGitCommand(
                 "for-each-ref",
                 "--format=\"%(refname:short)|%(creatordate:format:%Y/%m/%d %I:%M)|%(subject)\" \"refs/tags/*\"",
-                "C:\\Users\\Agustin.Marco\\Projects\\Apps\\C#\\visual_ternera\\IDE\\TestRepo"
+                Settings.EtiquetasDir
             );
-            Tag = GitTag.Parse(rc);
+            GitTag = GitTag.Parse(rc);
+            if (!Settings.GitRepo.EndsWith('/'))
+            {
+                Settings.GitRepo += '/';
+            }
+
+            GitTagUri = $"{Settings.GitRepo}releases/tag/{GitTag.Tag}";
         }
 
-        private static RelayCommand OpenWindow<T, K>(Settings settings)
+        private static RelayCommand OpenWindow<T, K>(Core.Logic.Settings settings)
             where T : IContent, new()
             where K : ViewModelBase
         {
@@ -134,7 +145,7 @@ namespace Main.ViewModel
         {
             LastRefreshed = 0;
             ClientsList.Clear();
-            var dbContext = new ClientDbContext(Settings.SqlConnection);
+            var dbContext = new ServiceDbContext(Settings.SqlConnection);
             foreach (var client in dbContext.EstadoCliente)
             {
                 ClientsList.Add(client);

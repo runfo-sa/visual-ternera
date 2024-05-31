@@ -1,5 +1,6 @@
 ﻿using AdonisUI.Controls;
-using Core;
+using Core.Logic;
+using Core.MVVM;
 using Microsoft.Office.Interop.Word;
 using System.IO;
 using static Cohere.View.GenerateSample;

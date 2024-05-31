@@ -1,4 +1,4 @@
-﻿using Core;
+﻿using Core.Database.Model;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;

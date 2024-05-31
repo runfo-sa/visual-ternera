@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:model="clr-namespace:Main.Model"
+    xmlns:converter="clr-namespace:Main.Converters"
     xmlns:viewmodel="clr-namespace:Main.ViewModel"
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
@@ -14,11 +14,9 @@
     Height="640"
     Width="1110">
     <Window.Resources>
-        <model:DateTimeToBrushConverter
-            x:Key="DateColorConverter" />
-        <model:StatusToBrushConverter
+        <converter:StatusToBrushConverter
             x:Key="StatusColorConverter" />
-        <model:StatusToStringConverter
+        <converter:StatusToStringConverter
             x:Key="StatusNameConverter" />
     </Window.Resources>
 
@@ -30,57 +28,54 @@
                 Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Grid
-            Grid.Column="0"
-            Margin="15">
-            <Grid.RowDefinitions>
-                <RowDefinition
-                    Height="Auto" />
-                <RowDefinition
-                    Height="*" />
-            </Grid.RowDefinitions>
+        <GroupBox>
+            <Grid
+                Margin="15">
+                <Grid.RowDefinitions>
+                    <RowDefinition
+                        Height="Auto" />
+                    <RowDefinition
+                        Height="*" />
+                </Grid.RowDefinitions>
 
-            <TextBlock
-                Text="Visual Ternera"
-                Grid.Row="0"
-                FontWeight="DemiBold"
-                FontSize="26" />
+                <TextBlock
+                    Text="Visual Ternera"
+                    FontWeight="DemiBold"
+                    FontSize="26" />
 
-            <Border
-                Grid.Row="1"
-                Margin="15"
-                Background="{DynamicResource {x:Static adonisUi:Brushes.Layer3BackgroundBrush}}"
-                BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}"
-                BorderThickness="3">
-                <ItemsControl
-                    VerticalAlignment="Stretch">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid
-                                Rows="3" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <Button
-                        Command="{Binding OpenEditor}"
-                        Content="{Binding EditorTitle}"
-                        Margin="15"
-                        FontWeight="DemiBold"
-                        FontSize="32" />
-                    <Button
-                        Command="{Binding OpenComparator}"
-                        Content="{Binding ComparatorTitle}"
-                        Margin="15"
-                        FontWeight="DemiBold"
-                        FontSize="32" />
-                    <Button
-                        Command="{Binding OpenCohere}"
-                        Content="{Binding CohereTitle}"
-                        Margin="15"
-                        FontWeight="DemiBold"
-                        FontSize="32" />
-                </ItemsControl>
-            </Border>
-        </Grid>
+                <Border
+                    Grid.Row="1"
+                    Margin="15">
+                    <ItemsControl
+                        VerticalAlignment="Stretch">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid
+                                    Rows="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <Button
+                            Command="{Binding OpenEditor}"
+                            Content="{Binding EditorTitle}"
+                            Margin="15"
+                            FontWeight="DemiBold"
+                            FontSize="32" />
+                        <Button
+                            Command="{Binding OpenComparator}"
+                            Content="{Binding ComparatorTitle}"
+                            Margin="15"
+                            FontWeight="DemiBold"
+                            FontSize="32" />
+                        <Button
+                            Command="{Binding OpenCohere}"
+                            Content="{Binding CohereTitle}"
+                            Margin="15"
+                            FontWeight="DemiBold"
+                            FontSize="32" />
+                    </ItemsControl>
+                </Border>
+            </Grid>
+        </GroupBox>
 
         <Border
             Grid.Column="1"
@@ -89,7 +84,6 @@
             Background="{DynamicResource {x:Static adonisUi:Brushes.Layer3BackgroundBrush}}" />
 
         <Grid
-            x:Name="StateGrid"
             Grid.Column="1"
             Margin="15">
             <Grid.RowDefinitions>
@@ -103,8 +97,8 @@
 
             <DockPanel
                 LastChildFill="False">
-                <Label
-                    Content="Estado"
+                <TextBlock
+                    Text="Estado"
                     FontWeight="DemiBold"
                     FontSize="26" />
                 <Button
@@ -117,55 +111,56 @@
                 </Button>
             </DockPanel>
 
-            <StackPanel
+            <Border
                 Grid.Row="1"
-                Margin="15"
-                Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}"
+                Background="{DynamicResource {x:Static adonisUi:Brushes.Layer4BackgroundBrush}}"
                 VerticalAlignment="Center">
-                <DataGrid
-                    ItemsSource="{Binding ClientsList}"
-                    AutoGenerateColumns="False"
-                    IsReadOnly="True"
-                    FontSize="16"
-                    ColumnWidth="*">
-                    <DataGrid.RowStyle>
-                        <Style
-                            BasedOn="{StaticResource {x:Type DataGridRow}}"
-                            TargetType="{x:Type DataGridRow}">
-                            <Setter
-                                Property="Background"
-                                Value="{Binding UltimaConexion, Converter={StaticResource DateColorConverter}}" />
-                            <Setter
-                                Property="Foreground"
-                                Value="{Binding Estado, Converter={StaticResource StatusColorConverter}}" />
-                        </Style>
-                    </DataGrid.RowStyle>
-
-                    <DataGrid.Columns>
-                        <DataGridTextColumn
-                            Header="Cliente"
-                            Binding="{Binding Cliente}" />
-                        <DataGridTextColumn
-                            Header="Estado"
-                            Binding="{Binding Estado, Converter={StaticResource StatusNameConverter}}" />
-                        <DataGridTextColumn
-                            Header="Ultima Conexión"
-                            Binding="{Binding UltimaConexion}" />
-                    </DataGrid.Columns>
-                </DataGrid>
                 <StackPanel
-                    Orientation="Horizontal"
-                    Margin="0,25,0,0">
-                    <Button
-                        Command="{Binding RefreshClients}"
+                    Margin="10">
+                    <DataGrid
+                        ItemsSource="{Binding ClientsList}"
+                        AutoGenerateColumns="False"
+                        IsReadOnly="True"
                         FontWeight="DemiBold"
-                        FontSize="14">Refrescar</Button>
-                    <TextBlock
-                        Margin="10"
-                        FontSize="14"
-                        Text="{Binding LastRefreshed, StringFormat='Ultimo análisis: hace \{0\} minutos'}" />
+                        FontSize="16"
+                        ColumnWidth="*">
+                        <DataGrid.RowStyle>
+                            <Style
+                                BasedOn="{StaticResource {x:Type DataGridRow}}"
+                                TargetType="{x:Type DataGridRow}">
+                                <Setter
+                                    Property="Foreground"
+                                    Value="{Binding Estado, Converter={StaticResource StatusColorConverter}}" />
+                            </Style>
+                        </DataGrid.RowStyle>
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn
+                                Header="Cliente"
+                                Binding="{Binding Cliente}" />
+                            <DataGridTextColumn
+                                Header="Estado"
+                                Binding="{Binding Estado, Converter={StaticResource StatusNameConverter}}" />
+                            <DataGridTextColumn
+                                Header="Ultima Conexión"
+                                Binding="{Binding UltimaConexion}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Margin="0,25,0,0">
+                        <Button
+                            Command="{Binding RefreshClients}"
+                            FontWeight="DemiBold"
+                            FontSize="14"
+                            Content="Refrescar" />
+                        <TextBlock
+                            Margin="10"
+                            FontSize="14"
+                            Text="{Binding LastRefreshed, StringFormat='Ultimo análisis: hace \{0\} minutos'}" />
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+            </Border>
 
             <DockPanel
                 Grid.Row="2"
@@ -174,14 +169,14 @@
                 <TextBlock
                     DockPanel.Dock="Left"
                     FontWeight="DemiBold"
-                    Text="{Binding Tag.Tag, StringFormat='Versión: \{0\}'}" />
+                    Text="{Binding GitTag.Tag, StringFormat='Versión: \{0\}'}" />
                 <TextBlock
                     DockPanel.Dock="Right">
                     <Hyperlink
                         RequestNavigate="Hyperlink_RequestNavigate"
-                        NavigateUri="https://github.com/runfo-sa/visual-ternera-servicio/commit/9a0e8d78e9b52eef7d1f50838ee7008cde2b0168">
+                        NavigateUri="{Binding GitTagUri}">
                         <TextBlock
-                            Text="{Binding Tag.Message}"
+                            Text="{Binding GitTag.Message}"
                             FontWeight="DemiBold" />
                     </Hyperlink>
                 </TextBlock>

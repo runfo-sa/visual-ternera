@@ -1,4 +1,6 @@
 ﻿using Core;
+using Core.Logic;
+using Core.MVVM;
 using Editor.Model;
 using System.IO;
 using System.Windows.Data;
@@ -9,8 +11,8 @@ namespace Editor.ViewModel
 {
     public class PreviewViewModel(Settings settings) : ViewModelBase(settings)
     {
-        public static CollectionView DpiList { get; } = new(DpiConstants.All);
-        public static CollectionView SizeList { get; } = new(SizeConstants.All);
+        public static CollectionView DpiList { get; set; } = new(DpiConstants.All);
+        public static CollectionView SizeList { get; set; } = new(SizeConstants.GetList(File.ReadAllText("SizeList.xml")));
 
         private BitmapSource _previewImage = null!;
 
@@ -36,6 +38,24 @@ namespace Editor.ViewModel
             }
         }
 
+        public BitmapImage RotateLeftIcon
+        {
+            get
+            {
+                var uri = $"/Editor;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-rotate-left.png";
+                return new BitmapImage(new Uri(uri, UriKind.Relative));
+            }
+        }
+
+        public BitmapImage RotateRightIcon
+        {
+            get
+            {
+                var uri = $"/Editor;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-rotate-right.png";
+                return new BitmapImage(new Uri(uri, UriKind.Relative));
+            }
+        }
+
         public RelayCommand RotateRight => new(_ =>
         {
             PreviewImage = new TransformedBitmap(PreviewImage, new RotateTransform(90.0));
@@ -50,18 +70,41 @@ namespace Editor.ViewModel
             PreviewAngle = angle < 0.0 ? 270.0 : angle;
         }, p => PreviewImage is not null);
 
-        public async void GeneratePreview(TabItem? item)
+        public async Task<string> GeneratePreview(TabItem? item)
         {
             var content = item!.EditorBody.Text;
             var labelary = new Labelary(content)
                 .FillVariables(Settings)
                 .LoadFonts();
+
             var bytes = await labelary.Post(((LabelDpi)DpiList.CurrentItem).Value, ((LabelSize)SizeList.CurrentItem).Value);
             if (bytes is not null)
             {
                 using MemoryStream stream = new(bytes);
                 PreviewImage = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
             }
+
+            return labelary.Error;
+        }
+
+        public static void DownSize()
+        {
+            SizeList.MoveCurrentToNext();
+            if (SizeList.IsCurrentAfterLast)
+            {
+                SizeList.MoveCurrentToFirst();
+            }
+            SizeList.Refresh();
+        }
+
+        public static void UpSize()
+        {
+            SizeList.MoveCurrentToPrevious();
+            if (SizeList.IsCurrentBeforeFirst)
+            {
+                SizeList.MoveCurrentToLast();
+            }
+            SizeList.Refresh();
         }
     }
 }

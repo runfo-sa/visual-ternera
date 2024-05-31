@@ -1,5 +1,7 @@
 ﻿using Comparator.View;
 using Core;
+using Core.Logic;
+using Core.MVVM;
 using ICSharpCode.AvalonEdit.Document;
 using System.IO;
 using System.Text;

@@ -1,5 +1,7 @@
 ﻿using AdonisUI.Controls;
-using Core;
+using Core.Database.Model;
+using Core.Logic;
+using Core.MVVM;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.ObjectModel;
 using System.IO;

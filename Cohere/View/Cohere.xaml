@@ -5,7 +5,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:core="clr-namespace:Core;assembly=Core"
+    xmlns:coreView="clr-namespace:Core.ViewLogic;assembly=Core"
+    xmlns:coreDb="clr-namespace:Core.Database.Model;assembly=Core"
     xmlns:model="clr-namespace:Cohere.Model"
     xmlns:viewmodel="clr-namespace:Cohere.ViewModel"
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
@@ -84,7 +85,7 @@
 
                     <TreeView.Resources>
                         <HierarchicalDataTemplate
-                            DataType="{x:Type core:LabelDir}"
+                            DataType="{x:Type coreView:LabelDir}"
                             ItemsSource="{Binding Items}">
                             <TextBlock
                                 Text="{Binding Name}"
@@ -92,7 +93,7 @@
                         </HierarchicalDataTemplate>
 
                         <DataTemplate
-                            DataType="{x:Type core:LabelFile}">
+                            DataType="{x:Type coreView:LabelFile}">
                             <TextBlock
                                 HorizontalAlignment="Stretch"
                                 Text="{Binding Name}" />
@@ -207,7 +208,7 @@
                     ItemsSource="{Binding SelectedValues}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate
-                            DataType="{x:Type core:Valor}">
+                            DataType="{x:Type coreDb:Valor}">
                             <Label
                                 FontWeight="Regular"
                                 Margin="10,10"

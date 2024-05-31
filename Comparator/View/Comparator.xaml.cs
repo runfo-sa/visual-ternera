@@ -1,5 +1,5 @@
 using Comparator.Model;
-using Core;
+using Core.Interfaces;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;

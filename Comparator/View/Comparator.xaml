@@ -7,7 +7,7 @@
     xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:viewmodel="clr-namespace:Comparator.ViewModel"
-    xmlns:core="clr-namespace:Core;assembly=Core"
+    xmlns:core="clr-namespace:Core.ViewLogic;assembly=Core"
     d:DataContext="{d:DesignInstance Type=viewmodel:ComparatorViewModel}"
     mc:Ignorable="d"
     d:DesignHeight="450"

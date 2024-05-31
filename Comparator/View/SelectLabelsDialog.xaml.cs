@@ -1,5 +1,5 @@
 ﻿using AdonisUI.Controls;
-using Core;
+using Core.ViewLogic;
 using System.IO;
 
 namespace Comparator.View

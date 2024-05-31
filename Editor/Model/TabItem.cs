@@ -1,6 +1,7 @@
-﻿using Core;
+﻿using Core.MVVM;
 using ICSharpCode.AvalonEdit.Document;
 using Microsoft.Win32;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 
@@ -57,6 +58,7 @@ namespace Editor.Model
             Header = header;
             EditorBody = editorBody;
             EditorBody.TextChanged += UnsavedChanges;
+            EditorBody.UndoStack.PropertyChanged += ResetChanges;
         }
 
         private void UnsavedChanges(object? sender, EventArgs e)
@@ -73,14 +75,24 @@ namespace Editor.Model
             }
         }
 
-        public void SaveItem()
+        private void ResetChanges(object? sender, PropertyChangedEventArgs e)
+        {
+            if (EditorBody.UndoStack.CanUndo == false && HasUnsavedChanges)
+            {
+                Header = Header[..(Header.Length - 1)];
+                EditorBody.TextChanged += UnsavedChanges;
+                HasUnsavedChanges = false;
+            }
+        }
+
+        public void SaveItem(string extension)
         {
             if (HasUnsavedChanges)
             {
                 if (Path is not null)
                 {
                     File.WriteAllText(Path, EditorBody.Text);
-                    Header = Header.Remove(Header.LastIndexOf('*'));
+                    Header = Header[..(Header.Length - 1)];
                     EditorBody.TextChanged += UnsavedChanges;
                     HasUnsavedChanges = false;
                 }
@@ -88,7 +100,7 @@ namespace Editor.Model
                 {
                     SaveFileDialog dialog = new()
                     {
-                        Filter = "ZPL File (*.e01)|*.e01|Todos los archivos (*.*)|*.*"
+                        Filter = $"ZPL File (*.{extension})|*.{extension}|Todos los archivos (*.*)|*.*"
                     };
 
                     if (dialog.ShowDialog() == true)

@@ -1,5 +1,10 @@
 ﻿using Cohere.View;
 using Core;
+using Core.Database;
+using Core.Database.Model;
+using Core.Logic;
+using Core.MVVM;
+using Core.ViewLogic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
@@ -194,7 +199,7 @@ namespace Cohere.ViewModel
             }
         }, _ => ProductsList.Count > 0 && FoundErrors == 0);
 
-        public CohereViewModel(Core.Settings settings) : base(settings)
+        public CohereViewModel(Core.Logic.Settings settings) : base(settings)
         {
             InitTree();
         }

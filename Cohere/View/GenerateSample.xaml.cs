@@ -1,5 +1,10 @@
 ﻿using AdonisUI.Controls;
 using Core;
+using Core.Database;
+using Core.Database.Model;
+using Core.Logic;
+using Core.MVVM;
+using Core.ViewLogic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;

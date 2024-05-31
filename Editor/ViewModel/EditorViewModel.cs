@@ -1,23 +1,35 @@
 ﻿using Core;
+using Core.Logic;
+using Core.MVVM;
+using Core.View;
+using Core.ViewLogic;
 using Editor.Model;
+using Editor.View;
 using ICSharpCode.AvalonEdit.Document;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Drawing.Printing;
 using System.IO;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using MessageBox = AdonisUI.Controls.MessageBox;
+using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
+using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
 
 namespace Editor.ViewModel
 {
-    public class EditorViewModel : ViewModelBase
+    public class EditorViewModel(Settings settings) : ViewModelBase(settings)
     {
+        private bool _doubleClick = false;
         private int _newTabNumber = 0;
 
-        public PreviewViewModel PreviewViewModel { get; }
-
+        public static CollectionView Printers => new(PrinterSettings.InstalledPrinters);
+        public PreviewViewModel PreviewViewModel { get; } = new(settings);
         public ObservableCollection<TabItem> Tabs { get; set; } = [];
-        public ObservableCollection<object> RootDir { get; set; } = [];
+        public TreeGenerator Tree { get; } = new(settings);
 
         private TabItem _unpinnedTab = new("", new TextDocument(""))
         {
@@ -47,40 +59,162 @@ namespace Editor.ViewModel
             }
         }
 
-        private readonly CollectionView _printers = new(PrinterSettings.InstalledPrinters);
+        private bool _previewOnSave = false;
 
-        public CollectionView Printers => _printers;
+        public bool PreviewOnSave
+        {
+            get => _previewOnSave;
+            set
+            {
+                _previewOnSave = value;
+                OnPropertyChanged(nameof(PreviewOnSave));
+            }
+        }
+
+        private string? _previewErrors = null;
+
+        public string? PreviewErrors
+        {
+            get => _previewErrors;
+            set
+            {
+                _previewErrors = value;
+                OnPropertyChanged(nameof(PreviewErrors));
+            }
+        }
+
+        private Visibility _errorsWindow = Visibility.Hidden;
+
+        public Visibility ErrorsWindow
+        {
+            get => _errorsWindow;
+            set
+            {
+                _errorsWindow = value;
+                OnPropertyChanged(nameof(ErrorsWindow));
+            }
+        }
+
+        public BitmapImage NewIcon
+        {
+            get
+            {
+                var uri = $"/Editor;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-new.png";
+                return new BitmapImage(new Uri(uri, UriKind.Relative));
+            }
+        }
+
+        public BitmapImage OpenIcon
+        {
+            get
+            {
+                var uri = $"/Editor;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-open.png";
+                return new BitmapImage(new Uri(uri, UriKind.Relative));
+            }
+        }
+
+        public BitmapImage SaveIcon
+        {
+            get
+            {
+                var uri = $"/Editor;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-save.png";
+                return new BitmapImage(new Uri(uri, UriKind.Relative));
+            }
+        }
+
+        public BitmapImage SaveAllIcon
+        {
+            get
+            {
+                var uri = $"/Editor;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-save-all.png";
+                return new BitmapImage(new Uri(uri, UriKind.Relative));
+            }
+        }
+
+        public BitmapImage PreviewIcon
+        {
+            get
+            {
+                var uri = $"/Editor;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-preview.png";
+                return new BitmapImage(new Uri(uri, UriKind.Relative));
+            }
+        }
+
+        public BitmapImage PrintIcon
+        {
+            get
+            {
+                var uri = $"/Editor;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-print.png";
+                return new BitmapImage(new Uri(uri, UriKind.Relative));
+            }
+        }
 
         public RelayCommand OpenFile => new(Open);
         public RelayCommand<TabItem> CloseTab => new(Close);
 
         public RelayCommand PreviewLabel => new(
-            _ => PreviewViewModel.GeneratePreview(SelectedTab == 0 ? UnpinnedTab : Tabs[SelectedTab - 1]),
+            async _ =>
+            {
+                PreviewErrors = await PreviewViewModel.GeneratePreview(SelectedTab == 0 ? UnpinnedTab : Tabs[SelectedTab - 1]);
+                if (!PreviewErrors.IsNullOrEmpty())
+                {
+                    ErrorsWindow = Visibility.Visible;
+                }
+            },
             _ => (SelectedTab == 0) ? UnpinnedTab.Visibility == Visibility.Visible : (Tabs.Count > 0 && Tabs[SelectedTab - 1] != null)
         );
 
         public RelayCommand NewFile => new(_ => AddTab($"new {++_newTabNumber}", "^XA\r\n\r\n^XZ"));
 
         public RelayCommand SaveFile => new(
-            _ => Tabs[SelectedTab - 1].SaveItem(),
+            _ =>
+            {
+                Tabs[SelectedTab - 1].SaveItem(Settings.EtiquetasExtension);
+                if (PreviewOnSave)
+                {
+                    PreviewLabel.Execute(this);
+                }
+            },
             _ => SelectedTab > 0 && Tabs[SelectedTab - 1] is not null && Tabs[SelectedTab - 1].HasUnsavedChanges
         );
 
-        public RelayCommand OpenSelected => new(label =>
-        {
-            if (label is not null && label is LabelFile)
+        public RelayCommand SaveAsFile => new(
+            _ =>
             {
-                var file = label as LabelFile;
-                var select = Tabs.FirstOrDefault(t => t.Header == file!.Name);
-                if (select is not null)
+                var tab = Tabs[SelectedTab - 1];
+                tab.Path = null;
+                tab.SaveItem(Settings.EtiquetasExtension);
+                if (PreviewOnSave)
                 {
-                    SelectedTab = Tabs.IndexOf(select) + 1;
+                    PreviewLabel.Execute(this);
                 }
-                else
+            },
+            _ => SelectedTab > 0 && Tabs[SelectedTab - 1] is not null && Tabs[SelectedTab - 1].HasUnsavedChanges
+        );
+
+        public RelayCommand OpenSelected => new(item =>
+        {
+            if (item is not null && item is LabelFile label)
+            {
+                DispatcherTimer doubleClickTimer = new()
                 {
-                    var content = File.ReadAllText(file!.Path);
-                    AddUnpinnedTab(file.Name, content, file.Path);
-                }
+                    Interval = TimeSpan.FromMilliseconds(200)
+                };
+                doubleClickTimer.Tick += (sender, e) =>
+                {
+                    OpenTab(label);
+                    doubleClickTimer.Stop();
+                    _doubleClick = false;
+                };
+                doubleClickTimer.Start();
+            }
+        });
+
+        public RelayCommand OpenSelectedPinned => new(item =>
+        {
+            if (item is not null && item is LabelFile)
+            {
+                _doubleClick = true;
             }
         });
 
@@ -90,7 +224,7 @@ namespace Editor.ViewModel
             {
                 if (item.HasUnsavedChanges)
                 {
-                    item.SaveItem();
+                    item.SaveItem(Settings.EtiquetasExtension);
                 }
             }
         }, p => Tabs.Count > 0);
@@ -109,46 +243,45 @@ namespace Editor.ViewModel
             PrinterHelper.SendStringToPrinter(Printers.CurrentItem.ToString()!, labelary.Content, tab.Header);
         }, _ => (SelectedTab == 0) ? UnpinnedTab.Visibility == Visibility.Visible : (Tabs.Count > 0 && Tabs[SelectedTab - 1] != null));
 
-        public EditorViewModel(Settings settings) : base(settings)
+        public static RelayCommand AboutPopUp => new(_ =>
         {
-            PreviewViewModel = new(settings);
-            InitTree();
-        }
+            AboutPopUp popUp = new();
+            popUp.ShowDialog();
+        });
 
-        private void InitTree()
+        public static RelayCommand HelpPopUp => new(_ =>
         {
-            var caja = new LabelDir("Caja");
-            var otro = new LabelDir("Otros");
-            var prim = new LabelDir("Primaria");
+            Help popUp = new();
+            popUp.ShowDialog();
+        });
 
-            var files = Directory.GetFiles(Settings.EtiquetasDir, "*.e01");
-            foreach (var file in files)
-            {
-                var filename = Path.GetFileName(file);
-                if (filename.StartsWith("CAJA", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    caja.Labels.Add(new LabelFile(file));
-                }
-                else if (filename.StartsWith("PRIMARIA", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    prim.Labels.Add(new LabelFile(file));
-                }
-                else
-                {
-                    otro.Labels.Add(new LabelFile(file));
-                }
-            }
+        public static RelayCommand OpenSettings => new(_ =>
+        {
+            SettingsWindow window = new();
+            window.ShowDialog();
+        });
 
-            RootDir.Add(caja);
-            RootDir.Add(prim);
-            RootDir.Add(otro);
-        }
+        public static RelayCommand DownSize => new(_ =>
+        {
+            PreviewViewModel.DownSize();
+        });
+
+        public static RelayCommand UpSize => new(_ =>
+        {
+            PreviewViewModel.UpSize();
+        });
+
+        public RelayCommand CloseErrorWindow => new(_ =>
+        {
+            ErrorsWindow = Visibility.Hidden;
+            PreviewErrors = null;
+        });
 
         private void Open(object? obj)
         {
             OpenFileDialog dialog = new()
             {
-                Filter = "ZPL File (*.e01)|*.e01|Todos los archivos (*.*)|*.*"
+                Filter = $"ZPL File (*.{Settings.EtiquetasExtension})|*.{Settings.EtiquetasExtension}|Todos los archivos (*.*)|*.*"
             };
 
             if (dialog.ShowDialog() == true)
@@ -167,7 +300,7 @@ namespace Editor.ViewModel
                     switch (MessageBox.Show($"Guardar archivo '{tab.Header}'?", "Guardar", MessageBoxButton.YesNoCancel))
                     {
                         case MessageBoxResult.Yes:
-                            tab.SaveItem();
+                            tab.SaveItem(Settings.EtiquetasExtension);
                             Tabs.Remove(tab);
                             break;
 
@@ -217,14 +350,37 @@ namespace Editor.ViewModel
 
         private void PinUnpinned(object? sender, EventArgs e)
         {
-            var tab = new TabItem(UnpinnedTab.Header + '*', new TextDocument(UnpinnedTab.EditorBody.Text), UnpinnedTab.Path)
+            UnpinnedTab.IsModified -= PinUnpinned;
+
+            var tab = new TabItem(UnpinnedTab.Header + '*', UnpinnedTab.EditorBody, UnpinnedTab.Path)
             {
                 HasUnsavedChanges = true
             };
-            Close(UnpinnedTab);
 
+            Close(UnpinnedTab);
             Tabs.Add(tab);
             SelectedTab = Tabs.Count;
+        }
+
+        private void OpenTab(LabelFile label)
+        {
+            var selected = Tabs.FirstOrDefault(t => t.Header == label!.Name);
+            if (selected is not null)
+            {
+                SelectedTab = Tabs.IndexOf(selected) + 1;
+            }
+            else
+            {
+                var content = File.ReadAllText(label!.Path);
+                if (_doubleClick)
+                {
+                    AddTab(label.Name, content, label.Path);
+                }
+                else
+                {
+                    AddUnpinnedTab(label.Name, content, label.Path);
+                }
+            }
         }
     }
 }

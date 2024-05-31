@@ -1,13 +1,25 @@
-﻿namespace Editor.Model
+﻿using System.IO;
+using System.Xml.Serialization;
+
+namespace Editor.Model
 {
     public record struct LabelSize(string Display, string Value);
 
+    public class SizeList
+    {
+        public LabelSize[] Items;
+    }
+
     public static class SizeConstants
     {
-        public static IReadOnlyCollection<LabelSize> All =>
-        [
-            new LabelSize("Primaria - [10x8cm]","4x3"),
-            new LabelSize("Caja - [10x15cm]","4x6")
-        ];
+        public static LabelSize[] GetList(string content)
+        {
+            XmlSerializer serializer = new(typeof(SizeList));
+            using (StringReader reader = new(content))
+            {
+                var list = (SizeList)serializer.Deserialize(reader)!;
+                return list.Items;
+            }
+        }
     }
 }
