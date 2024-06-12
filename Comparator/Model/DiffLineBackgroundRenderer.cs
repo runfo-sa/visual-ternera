@@ -15,7 +15,7 @@ namespace Comparator.Model
 
                 if (line != null)
                 {
-                    foreach (var rc in BackgroundGeometryBuilder.GetRectsFromVisualSegment(textView, line, 0, 1000))
+                    foreach (var rc in BackgroundGeometryBuilder.GetRectsFromVisualSegment(textView, line, 0, 10000))
                     {
                         drawingContext.DrawRectangle(
                             new SolidColorBrush(lineColor), null,

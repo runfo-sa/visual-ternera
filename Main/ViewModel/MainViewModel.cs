@@ -5,6 +5,7 @@ using Core;
 using Core.Git;
 using Core.Interfaces;
 using Core.Logic;
+using Core.Logic.SettingsModel;
 using Core.MVVM;
 using Editor.ViewModel;
 using Main.Model;
@@ -102,17 +103,18 @@ namespace Main.ViewModel
             updateTime.Tick += UpdateTime;
             updateTime.Start();
 
-            string rc = GitTag.RunGitCommand(
+            var tags = Git.RunGitCommand(
                 "for-each-ref",
-                "--format=\"%(refname:short)|%(creatordate:format:%Y/%m/%d %I:%M)|%(subject)\" \"refs/tags/*\"",
+                "--format=\"%(refname:short)|%(creatordate:format:%Y/%m/%d %I:%M)|%(subject)\\n\" \"refs/tags/*\"",
                 Settings.EtiquetasDir
-            );
-            GitTag = GitTag.Parse(rc);
+            ).Split("\\n", StringSplitOptions.RemoveEmptyEntries).Select(GitTag.Parse);
+
             if (!Settings.GitRepo.EndsWith('/'))
             {
                 Settings.GitRepo += '/';
             }
 
+            GitTag = tags.Last();
             GitTagUri = $"{Settings.GitRepo}releases/tag/{GitTag.Tag}";
         }
 
@@ -122,12 +124,18 @@ namespace Main.ViewModel
         {
             return new RelayCommand(a =>
             {
-                new AdonisWindow
+                var vm = Activator.CreateInstance(typeof(K), settings) as ViewModelBase;
+                var win = new AdonisWindow
                 {
                     Content = new T() { },
                     Title = "Visual Ternera - " + T.Title,
-                    DataContext = Activator.CreateInstance(typeof(K), settings)
-                }.Show();
+                    DataContext = vm
+                };
+
+                if (!vm!.Closed)
+                {
+                    win.Show();
+                }
             });
         }
 

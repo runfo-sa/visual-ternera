@@ -85,7 +85,7 @@
 
                     <TreeView.Resources>
                         <HierarchicalDataTemplate
-                            DataType="{x:Type coreView:LabelDir}"
+                            DataType="{x:Type coreView:VirtualDirectory}"
                             ItemsSource="{Binding Items}">
                             <TextBlock
                                 Text="{Binding Name}"

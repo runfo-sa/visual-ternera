@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
 
-namespace Editor.Model
+namespace Core.Model
 {
     public record struct LabelSize(string Display, string Value);
 

@@ -1,8 +1,10 @@
-﻿namespace Core.ViewLogic
+﻿using Core.Interfaces;
+
+namespace Core.ViewLogic
 {
-    public class LabelFile(string path)
+    public class LabelFile(string path) : IFile
     {
         public string Path => path;
-        public string Name => System.IO.Path.GetFileName(path).ToLowerInvariant();
+        public string Name => System.IO.Path.GetFileName(path);
     }
 }

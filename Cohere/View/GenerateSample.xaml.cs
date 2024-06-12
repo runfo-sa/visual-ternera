@@ -46,8 +46,8 @@ namespace Cohere.View
 
         public ObservableCollection<ProductoMuestra> ProductsList { get; set; }
 
-        private readonly CollectionView _printers = new(PrinterSettings.InstalledPrinters);
-        public CollectionView Printers => _printers;
+        private readonly ListCollectionView _printers = new(PrinterSettings.InstalledPrinters.Cast<string>().ToList());
+        public ListCollectionView Printers => _printers;
 
         private bool _selectAll;
 
@@ -112,7 +112,7 @@ namespace Cohere.View
                 {
                     var label = new Labelary(File.ReadAllText(_labelFile.Path))
                         .FillProduct(_settings, prod.Codigo)
-                        .FillVariables(_settings);
+                        .FillTestVariables(_settings);
                     PrinterHelper.SendStringToPrinter(Printers.CurrentItem.ToString()!, label.Content, $"{_labelFile.Name} - {prod.Nombre}");
                 }
             }

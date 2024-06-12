@@ -1,10 +1,10 @@
-﻿namespace Editor.Model
+﻿namespace Core.Model
 {
     public record struct LabelDpi(string Display, string Value);
 
     public static class DpiConstants
     {
-        public static IReadOnlyCollection<LabelDpi> All =>
+        public static List<LabelDpi> All =>
         [
             new LabelDpi("6dpmm (150 dpi)","6"),
             new LabelDpi("8dpmm (203 dpi)","8"),

@@ -1,4 +1,4 @@
-﻿using Core.Logic;
+﻿using Core.Logic.SettingsModel;
 using ICSharpCode.AvalonEdit.Highlighting;
 using Main.View;
 using Main.ViewModel;

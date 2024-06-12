@@ -4,6 +4,12 @@ namespace Core.Logger
 {
     public class Logger
     {
+        /// <summary>
+        /// Registra el contenido pasado a un archivo .log.
+        /// <br/>
+        /// El archivo es creado en 'C:\ProgramData\Visual Ternera\yyyy_MM_dd.log'
+        /// </summary>
+        /// <returns>La ruta al archivo</returns>
         public static string Log(string content)
         {
             DateTime date = DateTime.Now;

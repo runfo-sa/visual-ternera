@@ -81,7 +81,7 @@ namespace Cohere.ViewModel
                             var atrib = new SqlParameter("@Var", atributo.AtributoNombre);
 
                             var rc = context.Database
-                                .SqlQueryRaw<KeyValue>("ide.BuscarReglaAtributo @Etiqueta, @Var", etiqueta, atrib)
+                                .SqlQueryRaw<ReglaKeyValue>("ide.BuscarReglaAtributo @Etiqueta, @Var", etiqueta, atrib)
                                 .ToList();
 
                             foreach (var item in rc)
@@ -206,9 +206,9 @@ namespace Cohere.ViewModel
 
         private void InitTree()
         {
-            var caja = new LabelDir("Caja");
-            var otro = new LabelDir("Otros");
-            var prim = new LabelDir("Primaria");
+            var caja = new VirtualDirectory("Caja");
+            var otro = new VirtualDirectory("Otros");
+            var prim = new VirtualDirectory("Primaria");
 
             var files = Directory.GetFiles(Settings.EtiquetasDir, "*.e01");
             foreach (var file in files)
@@ -216,15 +216,15 @@ namespace Cohere.ViewModel
                 var filename = Path.GetFileName(file);
                 if (filename.StartsWith("CAJA", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    caja.Labels.Add(new LabelFile(file));
+                    caja.Files.Add(new LabelFile(file));
                 }
                 else if (filename.StartsWith("PRIMARIA", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    prim.Labels.Add(new LabelFile(file));
+                    prim.Files.Add(new LabelFile(file));
                 }
                 else
                 {
-                    otro.Labels.Add(new LabelFile(file));
+                    otro.Files.Add(new LabelFile(file));
                 }
             }
 

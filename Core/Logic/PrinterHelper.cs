@@ -3,15 +3,18 @@ using System.Runtime.InteropServices;
 
 namespace Core
 {
+    /// <summary>
+    /// Clase de ayuda para poder enviar las etiquetas a la impresora.
+    /// </summary>
     public class PrinterHelper
     {
         // Structure and API declarions:
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         public class DOCINFOA
         {
-            [MarshalAs(UnmanagedType.LPStr)] public string pDocName;
-            [MarshalAs(UnmanagedType.LPStr)] public string pOutputFile;
-            [MarshalAs(UnmanagedType.LPStr)] public string pDataType;
+            [MarshalAs(UnmanagedType.LPStr)] public string pDocName = null!;
+            [MarshalAs(UnmanagedType.LPStr)] public string pOutputFile = null!;
+            [MarshalAs(UnmanagedType.LPStr)] public string pDataType = null!;
         }
 
         [DllImport("winspool.Drv", EntryPoint = "OpenPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
@@ -41,9 +44,8 @@ namespace Core
         // Returns true on success, false on failure.
         public static bool SendBytesToPrinter(string szPrinterName, IntPtr pBytes, Int32 dwCount, string docName)
         {
-            Int32 dwError = 0, dwWritten = 0;
-            IntPtr hPrinter = new IntPtr(0);
-            DOCINFOA di = new DOCINFOA();
+            IntPtr hPrinter;
+            DOCINFOA di = new();
             bool bSuccess = false; // Assume failure unless you specifically succeed.
 
             di.pDocName = $"Visual Ternera - Etiqueta::{docName}";
@@ -58,6 +60,7 @@ namespace Core
                     // Start a page.
                     if (StartPagePrinter(hPrinter))
                     {
+                        Int32 dwWritten;
                         // Write your bytes.
                         bSuccess = WritePrinter(hPrinter, pBytes, dwCount, out dwWritten);
                         EndPagePrinter(hPrinter);
@@ -66,26 +69,21 @@ namespace Core
                 }
                 ClosePrinter(hPrinter);
             }
-            // If you did not succeed, GetLastError may give more information
-            // about why not.
-            if (bSuccess == false)
-            {
-                dwError = Marshal.GetLastWin32Error();
-            }
+
             return bSuccess;
         }
 
         public static bool SendFileToPrinter(string szPrinterName, string szFileName, string docName)
         {
             // Open the file.
-            FileStream fs = new FileStream(szFileName, FileMode.Open);
+            FileStream fs = new(szFileName, FileMode.Open);
             // Create a BinaryReader on the file.
-            BinaryReader br = new BinaryReader(fs);
+            BinaryReader br = new(fs);
             // Dim an array of bytes big enough to hold the file's contents.
-            Byte[] bytes = new Byte[fs.Length];
-            bool bSuccess = false;
+            Byte[] bytes;
+            bool bSuccess;
             // Your unmanaged pointer.
-            IntPtr pUnmanagedBytes = new IntPtr(0);
+            IntPtr pUnmanagedBytes;
             int nLength;
 
             nLength = Convert.ToInt32(fs.Length);

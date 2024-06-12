@@ -1,0 +1,117 @@
+﻿body, html {
+    font-family: system-ui;
+    background-color: var(--color-bg-main);
+    color: var(--color-fg-main);
+    margin: 0;
+    padding: 0;
+}
+
+p {
+    font-size: 17px;
+    word-wrap: break-word;
+}
+
+blockquote {
+    margin: 20px 0;
+    padding: 0 20px;
+    background-color: var(--color-bg-quote);
+    border-block-start: .1em solid var(--color-bg-quote);
+    border-block-end: .1em solid var(--color-bg-quote);
+}
+
+iframe {
+    border-width: 0;
+}
+
+[data-theme="light"] {
+    --color-bg-main: #e1e1db;
+    --color-fg-main: #262625;
+    --color-bg-menu: #3b2e2a;
+    --color-fg-menu: #d6d7eb;
+    --color-bg-quote: #c2c2bc;
+    --color-accent: #e69147;
+}
+
+[data-theme="dark"] {
+    --color-bg-main: #e1e1db;
+    --color-fg-main: #262625;
+    --color-bg-menu: #3b2e2a;
+    --color-fg-menu: #d6d7eb;
+    --color-bg-quote: #c2c2bc;
+    --color-accent: #e69147;
+}
+
+.grid-menu {
+    grid-area: menu;
+    background-color: var(--color-bg-menu);
+    color: var(--color-fg-menu);
+}
+
+.grid-main {
+    grid-area: main;
+    border: none;
+}
+
+.grid-foot {
+    grid-area: foot;
+    text-align: right;
+    padding-right: 20px;
+    color: gray;
+    font-weight: lighter;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 17% 1fr;
+    grid-template-rows: 1fr 5%;
+    grid-template-areas:
+        'menu main'
+        'menu foot';
+    height: 100%;
+    width: 100%;
+}
+
+.body-text {
+    height: 100%;
+    width: 100%;
+}
+
+.content {
+    margin-top: 5%;
+    margin-bottom: 5%;
+    margin-left: 25%;
+    margin-right: 25%;
+}
+
+.menu-item {
+    font-size: 16px;
+}
+
+    .menu-item:hover {
+        cursor: pointer;
+        color: var(--color-accent);
+    }
+
+.is-active {
+    color: var(--color-accent);
+}
+
+.tree {
+    margin: 20px;
+    position: sticky;
+    align-self: start;
+}
+
+    .tree, .tree ol, .tree ul {
+        list-style: none;
+        line-height: 1.75em;
+        margin: 0;
+        padding-left: 20px;
+    }
+
+        .tree label, .tree li {
+            display: block;
+            position: relative;
+            cursor: pointer;
+            width: 100%;
+        }

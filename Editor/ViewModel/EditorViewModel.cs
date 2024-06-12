@@ -4,11 +4,11 @@ using Core.MVVM;
 using Core.View;
 using Core.ViewLogic;
 using Editor.Model;
-using Editor.View;
 using ICSharpCode.AvalonEdit.Document;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Drawing.Printing;
 using System.IO;
 using System.Windows;
@@ -26,7 +26,7 @@ namespace Editor.ViewModel
         private bool _doubleClick = false;
         private int _newTabNumber = 0;
 
-        public static CollectionView Printers => new(PrinterSettings.InstalledPrinters);
+        public static ListCollectionView Printers => new(PrinterSettings.InstalledPrinters.Cast<string>().ToList());
         public PreviewViewModel PreviewViewModel { get; } = new(settings);
         public ObservableCollection<TabItem> Tabs { get; set; } = [];
         public TreeGenerator Tree { get; } = new(settings);
@@ -238,7 +238,7 @@ namespace Editor.ViewModel
         public RelayCommand Print => new(_ =>
         {
             var tab = SelectedTab == 0 ? UnpinnedTab : Tabs[SelectedTab - 1];
-            var labelary = new Labelary(tab.EditorBody.Text).FillVariables(Settings);
+            var labelary = new Labelary(tab.EditorBody.Text).FillTestVariables(Settings);
 
             PrinterHelper.SendStringToPrinter(Printers.CurrentItem.ToString()!, labelary.Content, tab.Header);
         }, _ => (SelectedTab == 0) ? UnpinnedTab.Visibility == Visibility.Visible : (Tabs.Count > 0 && Tabs[SelectedTab - 1] != null));
@@ -251,8 +251,7 @@ namespace Editor.ViewModel
 
         public static RelayCommand HelpPopUp => new(_ =>
         {
-            Help popUp = new();
-            popUp.ShowDialog();
+            Process.Start(new ProcessStartInfo(".\\Manual\\index.html") { UseShellExecute = true });
         });
 
         public static RelayCommand OpenSettings => new(_ =>

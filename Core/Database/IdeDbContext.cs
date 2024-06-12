@@ -5,8 +5,19 @@ namespace Core.Database
 {
     public class IdeDbContext(string sqlConnection) : DbContext()
     {
+        /// <summary>
+        /// Tabla con las reglas que se aplican en el proceso de cohesion
+        /// </summary>
         public DbSet<Regla> Reglas { get; set; }
+
+        /// <summary>
+        /// Variables que debe mirar cada regla en el proceso de cohesion
+        /// </summary>
         public DbSet<ReglaAtributo> ReglasAtributos { get; set; }
+
+        /// <summary>
+        /// Datos para completar las variables en la preview de etiquetas
+        /// </summary>
         public DbSet<TestVar> EtiquetasDatosPrueba { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

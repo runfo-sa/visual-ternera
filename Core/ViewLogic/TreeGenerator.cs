@@ -1,45 +1,66 @@
-﻿using System.Collections.ObjectModel;
+﻿using Core.Logic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
-using Core.Logic;
 
 namespace Core.ViewLogic
 {
+    /// <summary>
+    /// Genera el arbol de directorios, utilizar la propiedad Root para desplegar el arbol.
+    /// </summary>
     public class TreeGenerator(Settings settings)
     {
-        private readonly Settings _settings = settings;
+        /// <summary>
+        /// Raiz del arbol de directorios.
+        /// </summary>
         public ObservableCollection<object> Root => InitTree();
+
+        private readonly Settings _settings = settings;
+        private ObservableCollection<object>? _cachedRoot;
 
         private ObservableCollection<object> InitTree()
         {
-            ObservableCollection<object> root = [];
-
-            var caja = new LabelDir("Caja");
-            var otro = new LabelDir("Otros");
-            var prim = new LabelDir("Primaria");
+            if (_cachedRoot != null)
+            {
+                return _cachedRoot;
+            }
 
             var files = Directory.GetFiles(_settings.EtiquetasDir, $"*.{_settings.EtiquetasExtension}");
+            List<VirtualDirectory> dirs = [new VirtualDirectory("Otros")];
+            _cachedRoot = [];
+
+            foreach (var dir in _settings.VirtualDirectories)
+            {
+                dirs.Add(new VirtualDirectory(dir.Name));
+                Trace.WriteLine(dir);
+            }
+
             foreach (var file in files)
             {
                 var filename = Path.GetFileName(file);
-                if (filename.StartsWith("CAJA", StringComparison.CurrentCultureIgnoreCase))
+                foreach (var dir in _settings.VirtualDirectories)
                 {
-                    caja.Labels.Add(new LabelFile(file));
+                    if (filename.Contains(dir.Filter, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        dirs.First(d => d.Name == dir.Name).Files.Add(new LabelFile(file));
+                        goto OuterLoop; // Despues de agregar el archivo al directorio virtual saltamos al final del loop.
+                    }
                 }
-                else if (filename.StartsWith("PRIMARIA", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    prim.Labels.Add(new LabelFile(file));
-                }
-                else
-                {
-                    otro.Labels.Add(new LabelFile(file));
-                }
+
+                // Si no se pudo agregar el archivo a ningun directorio virtual definido, se lo asigna al directorio general "Otros".
+                dirs[0].Files.Add(new LabelFile(file));
+
+            OuterLoop:
+                continue;
             }
 
-            root.Add(caja);
-            root.Add(prim);
-            root.Add(otro);
+            var sortedDirs = dirs.OrderBy(d => d.Name);
+            foreach (var dir in sortedDirs)
+            {
+                _cachedRoot.Add(dir);
+            }
 
-            return root;
+            return _cachedRoot;
         }
     }
 }

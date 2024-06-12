@@ -1,4 +1,5 @@
-﻿using YamlDotNet.Serialization;
+﻿using Core.Logic.SettingsModel;
+using YamlDotNet.Serialization;
 
 namespace Core.Logic
 {
@@ -24,11 +25,11 @@ namespace Core.Logic
 
         [YamlMember(Description = " - Extensión de los archivos de etiqueta, sirve para filtrar")]
         public required string EtiquetasExtension { get; set; } = "e01";
-    }
 
-    public enum Theme
-    {
-        Dark,
-        Light
+        [YamlMember(Description = " - Lista de directorios virtuales, por los cuales se deberian filtrar la carpeta de etiquetas")]
+        public required List<FilterDirectory> VirtualDirectories { get; set; }
+
+        [YamlMember(Description = " - Modulo utilizado para generar la preview de etiquetas")]
+        public PreviewEngine PreviewEngine { get; set; } = PreviewEngine.Labelary;
     }
 }

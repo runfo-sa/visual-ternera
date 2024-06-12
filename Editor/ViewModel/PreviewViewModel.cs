@@ -1,5 +1,8 @@
 ﻿using Core;
+using Core.Interfaces;
 using Core.Logic;
+using Core.Logic.SettingsModel;
+using Core.Model;
 using Core.MVVM;
 using Editor.Model;
 using System.IO;
@@ -11,8 +14,8 @@ namespace Editor.ViewModel
 {
     public class PreviewViewModel(Settings settings) : ViewModelBase(settings)
     {
-        public static CollectionView DpiList { get; set; } = new(DpiConstants.All);
-        public static CollectionView SizeList { get; set; } = new(SizeConstants.GetList(File.ReadAllText("SizeList.xml")));
+        public static ListCollectionView DpiList { get; set; } = new(DpiConstants.All);
+        public static ListCollectionView SizeList { get; set; } = new(SizeConstants.GetList(File.ReadAllText("SizeList.xml")));
 
         private BitmapSource _previewImage = null!;
 
@@ -73,18 +76,24 @@ namespace Editor.ViewModel
         public async Task<string> GeneratePreview(TabItem? item)
         {
             var content = item!.EditorBody.Text;
-            var labelary = new Labelary(content)
-                .FillVariables(Settings)
+            IPreview preview = Settings.PreviewEngine switch
+            {
+                PreviewEngine.Labelary => new Labelary(content),
+                _ => throw new NotImplementedException()
+            };
+
+            preview = preview
+                .FillTestVariables(Settings)
                 .LoadFonts();
 
-            var bytes = await labelary.Post(((LabelDpi)DpiList.CurrentItem).Value, ((LabelSize)SizeList.CurrentItem).Value);
+            var bytes = await preview.Build(((LabelDpi)DpiList.CurrentItem).Value, ((LabelSize)SizeList.CurrentItem).Value);
             if (bytes is not null)
             {
                 using MemoryStream stream = new(bytes);
                 PreviewImage = BitmapFrame.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
             }
 
-            return labelary.Error;
+            return preview.Error;
         }
 
         public static void DownSize()

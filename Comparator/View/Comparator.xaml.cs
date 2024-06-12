@@ -1,4 +1,5 @@
 using Comparator.Model;
+using Comparator.ViewModel;
 using Core.Interfaces;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,54 +14,62 @@ namespace Comparator
         public Comparator()
         {
             InitializeComponent();
+            DataContextChanged += LoadViewModel;
+            leftEditor.Options.AllowScrollBelowDocument = true;
+            rightEditor.Options.AllowScrollBelowDocument = true;
         }
 
-        private void firstTextEditor_ScrollChanged(Object sender, ScrollChangedEventArgs e)
+        private void LoadViewModel(Object sender, DependencyPropertyChangedEventArgs e)
         {
-            secondTextEditor.ScrollToVerticalOffset(e.VerticalOffset);
+            var vm = (ComparatorViewModel)DataContext;
+            vm.CalculateDiffEvent += () =>
+            {
+                Loaded += (o, e) => RenderDiff();
+            };
+            vm.OpenSelector();
         }
 
-        private void secondTextEditor_ScrollChanged(Object sender, ScrollChangedEventArgs e)
+        private void LeftEditor_ScrollChanged(Object sender, ScrollChangedEventArgs e)
         {
-            firstTextEditor.ScrollToVerticalOffset(e.VerticalOffset);
+            rightEditor.ScrollToVerticalOffset(leftEditor.VerticalOffset);
         }
 
-        private void firstTextEditor_Loaded(Object sender, RoutedEventArgs e)
+        private void RightEditor_ScrollChanged(Object sender, ScrollChangedEventArgs e)
         {
-            Color leftColor = Color.FromRgb(189, 51, 95);
-            Color rightColor = Color.FromRgb(51, 189, 104);
+            leftEditor.ScrollToVerticalOffset(rightEditor.VerticalOffset);
+        }
 
-            var firstLines = firstTextEditor.Document!.Text.Split(Environment.NewLine);
-            var secondLines = secondTextEditor.Document!.Text.Split(Environment.NewLine);
+        private void RenderDiff()
+        {
+            leftEditor.TextArea.TextView.BackgroundRenderers.Clear();
+            rightEditor.TextArea.TextView.BackgroundRenderers.Clear();
 
-            List<int> lines = [];
+            Color leftColor = Color.FromArgb(50, 232, 155, 180);
+            Color rightColor = Color.FromArgb(50, 181, 232, 155);
+
+            var firstLines = leftEditor.Document?.Text.Split(Environment.NewLine);
+            var secondLines = rightEditor.Document?.Text.Split(Environment.NewLine);
+
+            if (firstLines == null || secondLines == null)
+            {
+                return;
+            }
+
+            List<int> diffLines = [];
 
             int i = 0, j = 0;
             for (; i < firstLines.Length && j < secondLines.Length; i++, j++)
             {
                 if (firstLines[i] != secondLines[j])
                 {
-                    lines.Add(i + 1);
+                    diffLines.Add(i + 1);
                 }
             }
 
-            if (i >= firstLines.Length && j < secondLines.Length)
-            {
-                firstTextEditor.TextArea.TextView.BackgroundRenderers.Add(new DiffLineBackgroundRenderer(lines, leftColor));
-                lines.AddRange(Enumerable.Range(j, secondLines.Length));
-                secondTextEditor.TextArea.TextView.BackgroundRenderers.Add(new DiffLineBackgroundRenderer(lines, rightColor));
-            }
-            else if (i < firstLines.Length && j >= secondLines.Length)
-            {
-                secondTextEditor.TextArea.TextView.BackgroundRenderers.Add(new DiffLineBackgroundRenderer(lines, rightColor));
-                lines.AddRange(Enumerable.Range(i, firstLines.Length));
-                firstTextEditor.TextArea.TextView.BackgroundRenderers.Add(new DiffLineBackgroundRenderer(lines, leftColor));
-            }
-            else
-            {
-                firstTextEditor.TextArea.TextView.BackgroundRenderers.Add(new DiffLineBackgroundRenderer(lines, leftColor));
-                secondTextEditor.TextArea.TextView.BackgroundRenderers.Add(new DiffLineBackgroundRenderer(lines, rightColor));
-            }
+            diffLines.AddRange(Enumerable.Range(Int32.Min(i, j), Int32.Max(firstLines.Length, secondLines.Length)));
+            var diffs = diffLines.Distinct().ToList();
+            leftEditor.TextArea.TextView.BackgroundRenderers.Add(new DiffLineBackgroundRenderer(diffs, leftColor));
+            rightEditor.TextArea.TextView.BackgroundRenderers.Add(new DiffLineBackgroundRenderer(diffs, rightColor));
         }
     }
 }

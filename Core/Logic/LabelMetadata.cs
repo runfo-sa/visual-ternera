@@ -1,56 +1,15 @@
-﻿using System.Runtime.Serialization;
-
-namespace Core.Logic
+﻿namespace Core.Logic
 {
-    public class LabelMetadata
+    /// <summary>
+    /// Metadata para una etiqueta,
+    /// util para tener variables de como se generaria la muestra
+    /// o para integrar con alguna funcionalidad del IDE.
+    /// </summary>
+    public class LabelMetadata<LanguageImpl>
     {
-        public Language? Language { get; set; }
-    }
-
-    public record struct Language(LanguageType LanguageType, char Letter)
-    {
-        public readonly string ParseContent(string content)
-        {
-            return LanguageType switch
-            {
-                LanguageType.Chinese | LanguageType.Japanese | LanguageType.Korean => content.Replace(
-                    $"^A{Letter}",
-                    $"^A{(char)LanguageType.Chinese}",
-                    StringComparison.CurrentCultureIgnoreCase
-                ),
-                LanguageType.Cyrillic | LanguageType.Greek => content.Replace(
-                    $"^A{Letter}",
-                    $"^A{(char)LanguageType.Cyrillic}",
-                    StringComparison.CurrentCultureIgnoreCase
-                ),
-                LanguageType.Arabic => content.Replace(
-                    $"^A{Letter}",
-                    $"^A{(char)LanguageType.Arabic}",
-                    StringComparison.CurrentCultureIgnoreCase
-                ),
-                _ => content
-            };
-        }
-    }
-
-    public enum LanguageType
-    {
-        [EnumMember(Value = "Chinese")]
-        Chinese = 'J',
-
-        [EnumMember(Value = "Japanese")]
-        Japanese = 'J',
-
-        [EnumMember(Value = "Korean")]
-        Korean = 'J',
-
-        [EnumMember(Value = "Cyrillic")]
-        Cyrillic = 'N',
-
-        [EnumMember(Value = "Greek")]
-        Greek = 'N',
-
-        [EnumMember(Value = "Arabic")]
-        Arabic = 'L'
+        /// <summary>
+        /// Lista de lenguajes con alfabetos no encontrados en la tabla ASCII.
+        /// </summary>
+        public List<LanguageImpl>? Languages { get; set; }
     }
 }

@@ -8,6 +8,7 @@
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:viewmodel="clr-namespace:Comparator.ViewModel"
     xmlns:core="clr-namespace:Core.ViewLogic;assembly=Core"
+    xmlns:diffplex="clr-namespace:DiffPlex.Wpf.Controls;assembly=DiffPlex.Wpf"
     d:DataContext="{d:DesignInstance Type=viewmodel:ComparatorViewModel}"
     mc:Ignorable="d"
     d:DesignHeight="450"
@@ -30,7 +31,7 @@
             </Grid.ColumnDefinitions>
 
             <Button
-                Command="{Binding AddComparation}"
+                Command="{Binding ChangeComparation}"
                 Content="+" />
 
             <StackPanel
@@ -39,7 +40,9 @@
                 HorizontalAlignment="Center">
                 <Button
                     Command="{Binding SwitchToTextMode}"
-                    Content="Codigo">
+                    Content="Codigo"
+                    FontWeight="DemiBold"
+                    FontSize="14">
                     <Button.Style>
                         <Style
                             TargetType="{x:Type Button}"
@@ -58,7 +61,9 @@
                 </Button>
                 <Button
                     Command="{Binding SwitchToImageMode}"
-                    Content="Imagen">
+                    Content="Imagen"
+                    FontWeight="DemiBold"
+                    FontSize="14">
                     <Button.Style>
                         <Style
                             TargetType="{x:Type Button}"
@@ -91,67 +96,68 @@
                     Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition
-                        Height="Auto" />
-                    <RowDefinition
-                        Height="*" />
-                </Grid.RowDefinitions>
+            <GroupBox>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="*" />
+                    </Grid.RowDefinitions>
 
-                <Label
-                    Margin="5"
-                    FontSize="14"
-                    FontWeight="Regular"
-                    HorizontalAlignment="Left"
-                    Content="{Binding FirstFilename}" />
-                <avalon:TextEditor
-                    Loaded="firstTextEditor_Loaded"
-                    ScrollViewer.ScrollChanged="firstTextEditor_ScrollChanged"
-                    Grid.Row="1"
-                    x:Name="firstTextEditor"
-                    Visibility="{Binding TextMode}"
-                    IsReadOnly="True"
-                    SyntaxHighlighting="ZPL"
-                    ShowLineNumbers="True"
-                    WordWrap="True"
-                    FontSize="14"
-                    FontFamily="Cascadia Mono Regular"
-                    Foreground="#E5E9F0"
-                    Background="{DynamicResource {x:Static adonisUi:Brushes.Layer4BackgroundBrush}}"
-                    Document="{Binding FirstLabelText}" />
-            </Grid>
+                    <TextBlock
+                        Margin="5"
+                        FontSize="14"
+                        FontWeight="Regular"
+                        HorizontalAlignment="Left"
+                        Text="{Binding LeftFilename}" />
+                    <avalon:TextEditor
+                        Grid.Row="1"
+                        x:Name="leftEditor"
+                        ScrollViewer.ScrollChanged="LeftEditor_ScrollChanged"
+                        IsReadOnly="True"
+                        ShowLineNumbers="True"
+                        SyntaxHighlighting="ZPL"
+                        WordWrap="True"
+                        FontSize="14"
+                        FontFamily="Cascadia Mono Regular"
+                        Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
+                        Background="{DynamicResource {x:Static adonisUi:Brushes.Layer4BackgroundBrush}}"
+                        Document="{Binding LeftText}" />
+                </Grid>
+            </GroupBox>
 
-            <Grid
+            <GroupBox
                 Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition
-                        Height="Auto" />
-                    <RowDefinition
-                        Height="*" />
-                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="*" />
+                    </Grid.RowDefinitions>
 
-                <Label
-                    Margin="5"
-                    FontSize="14"
-                    FontWeight="Regular"
-                    HorizontalAlignment="Left"
-                    Content="{Binding SecondFilename}" />
-                <avalon:TextEditor
-                    ScrollViewer.ScrollChanged="secondTextEditor_ScrollChanged"
-                    Grid.Row="1"
-                    x:Name="secondTextEditor"
-                    Visibility="{Binding TextMode}"
-                    IsReadOnly="True"
-                    SyntaxHighlighting="ZPL"
-                    ShowLineNumbers="True"
-                    WordWrap="True"
-                    FontSize="14"
-                    FontFamily="Cascadia Mono Regular"
-                    Foreground="#E5E9F0"
-                    Background="{DynamicResource {x:Static adonisUi:Brushes.Layer4BackgroundBrush}}"
-                    Document="{Binding SecondLabelText}" />
-            </Grid>
+                    <TextBlock
+                        Margin="5"
+                        FontSize="14"
+                        FontWeight="Regular"
+                        HorizontalAlignment="Left"
+                        Text="{Binding RightFilename}" />
+                    <avalon:TextEditor
+                        Grid.Row="1"
+                        x:Name="rightEditor"
+                        ScrollViewer.ScrollChanged="RightEditor_ScrollChanged"
+                        IsReadOnly="True"
+                        ShowLineNumbers="True"
+                        SyntaxHighlighting="ZPL"
+                        WordWrap="True"
+                        FontSize="14"
+                        FontFamily="Cascadia Mono Regular"
+                        Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
+                        Background="{DynamicResource {x:Static adonisUi:Brushes.Layer4BackgroundBrush}}"
+                        Document="{Binding RightText}" />
+                </Grid>
+            </GroupBox>
         </Grid>
 
         <Grid
@@ -174,12 +180,12 @@
                     <RowDefinition
                         Height="*" />
                 </Grid.RowDefinitions>
-                <Label
+                <TextBlock
                     Margin="5"
                     FontSize="14"
                     FontWeight="Regular"
                     HorizontalAlignment="Left"
-                    Content="{Binding FirstFilename}" />
+                    Text="{Binding LeftFilename}" />
                 <core:ZoomBorder
                     Grid.Row="1"
                     ClipToBounds="True"
@@ -193,32 +199,34 @@
                 </core:ZoomBorder>
             </Grid>
 
-            <Grid
+            <GroupBox
                 Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition
-                        Height="Auto" />
-                    <RowDefinition
-                        Height="*" />
-                </Grid.RowDefinitions>
-                <Label
-                    Margin="5"
-                    FontSize="14"
-                    FontWeight="Regular"
-                    HorizontalAlignment="Left"
-                    Content="Diferencia" />
-                <core:ZoomBorder
-                    Grid.Row="1"
-                    ClipToBounds="True"
-                    Margin="5"
-                    BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer4BorderBrush}}"
-                    Background="{DynamicResource {x:Static adonisUi:Brushes.Layer4BackgroundBrush}}"
-                    BorderThickness="2">
-                    <Image
-                        Source="{Binding CenterImage}"
-                        SnapsToDevicePixels="True" />
-                </core:ZoomBorder>
-            </Grid>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition
+                            Height="Auto" />
+                        <RowDefinition
+                            Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Margin="5"
+                        FontSize="14"
+                        FontWeight="Regular"
+                        HorizontalAlignment="Left"
+                        Text="Diferencia" />
+                    <core:ZoomBorder
+                        Grid.Row="1"
+                        ClipToBounds="True"
+                        Margin="5"
+                        BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer4BorderBrush}}"
+                        Background="{DynamicResource {x:Static adonisUi:Brushes.Layer4BackgroundBrush}}"
+                        BorderThickness="2">
+                        <Image
+                            Source="{Binding CenterImage}"
+                            SnapsToDevicePixels="True" />
+                    </core:ZoomBorder>
+                </Grid>
+            </GroupBox>
 
             <Grid
                 Grid.Column="2">
@@ -228,12 +236,12 @@
                     <RowDefinition
                         Height="*" />
                 </Grid.RowDefinitions>
-                <Label
+                <TextBlock
                     Margin="5"
                     FontSize="14"
                     FontWeight="Regular"
                     HorizontalAlignment="Left"
-                    Content="{Binding SecondFilename}" />
+                    Text="{Binding RightFilename}" />
                 <core:ZoomBorder
                     Grid.Row="1"
                     ClipToBounds="True"

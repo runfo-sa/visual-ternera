@@ -1,24 +1,35 @@
 ﻿using Comparator.View;
 using Core;
+using Core.Git;
 using Core.Logic;
+using Core.Model;
 using Core.MVVM;
+using Core.ViewLogic;
 using ICSharpCode.AvalonEdit.Document;
 using System.IO;
 using System.Text;
-using System.Timers;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace Comparator.ViewModel
 {
-    public class ComparatorViewModel : ViewModelBase
+    public delegate void ComparatorDelegate();
+
+    /// <summary>
+    /// <para><b>View Model</b> para la ventana de Comparación de etiquetas.</para>
+    /// <para>TODO!: Enlace a la descripcion del manual, 5.Desarrollo/Comparador.</para>
+    /// </summary>
+    public class ComparatorViewModel(Settings settings) : ViewModelBase(settings)
     {
         private bool _textMode = true;
 
+        /// <summary>
+        /// Indica si la ventana esta comparando codigo o no.
+        /// </summary>
         public bool TextMode
         {
             get => _textMode;
-            set
+            private set
             {
                 _textMode = value;
                 OnPropertyChanged(nameof(TextMode));
@@ -27,10 +38,13 @@ namespace Comparator.ViewModel
 
         private Visibility _textModeVisibility = Visibility.Visible;
 
+        /// <summary>
+        /// Indica la visibilidad de <see cref="TextMode"/>.
+        /// </summary>
         public Visibility TextModeVisibility
         {
             get => _textModeVisibility;
-            set
+            private set
             {
                 _textModeVisibility = value;
                 OnPropertyChanged(nameof(TextModeVisibility));
@@ -39,10 +53,13 @@ namespace Comparator.ViewModel
 
         private bool _imageMode = false;
 
+        /// <summary>
+        /// Indica si la ventana esta comparando imagenes o no.
+        /// </summary>
         public bool ImageMode
         {
             get => _imageMode;
-            set
+            private set
             {
                 _imageMode = value;
                 OnPropertyChanged(nameof(ImageMode));
@@ -51,66 +68,84 @@ namespace Comparator.ViewModel
 
         private Visibility _imageModeVisibility = Visibility.Hidden;
 
+        /// <summary>
+        /// Indica la visibilidad de <see cref="ImageMode"/>.
+        /// </summary>
         public Visibility ImageModeVisibility
         {
             get => _imageModeVisibility;
-            set
+            private set
             {
                 _imageModeVisibility = value;
                 OnPropertyChanged(nameof(ImageModeVisibility));
             }
         }
 
-        private TextDocument _firstLabelText = null!;
+        private TextDocument _leftText = null!;
 
-        public TextDocument FirstLabelText
+        /// <summary>
+        /// Codigo a comparar del lado izquierdo, considerado como el 'codigo viejo'.
+        /// </summary>
+        public TextDocument LeftText
         {
-            get => _firstLabelText;
+            get => _leftText;
             set
             {
-                _firstLabelText = value;
-                OnPropertyChanged(nameof(FirstLabelText));
+                _leftText = value;
+                OnPropertyChanged(nameof(LeftText));
             }
         }
 
-        private TextDocument _secondLabelText = null!;
+        private TextDocument _rightText = null!;
 
-        public TextDocument SecondLabelText
+        /// <summary>
+        /// Codigo a comparar del lado derecho, considerado como el 'codigo nuevo'.
+        /// </summary>
+        public TextDocument RightText
         {
-            get => _secondLabelText;
+            get => _rightText;
             set
             {
-                _secondLabelText = value;
-                OnPropertyChanged(nameof(SecondLabelText));
+                _rightText = value;
+                OnPropertyChanged(nameof(RightText));
             }
         }
 
-        private string _firstFilename = null!;
+        private string _leftFilename = null!;
 
-        public string FirstFilename
+        /// <summary>
+        /// Nombre del archivo del lado izquierdo.
+        /// </summary>
+        public string LeftFilename
         {
-            get => _firstFilename;
+            get => _leftFilename;
             set
             {
-                _firstFilename = value;
-                OnPropertyChanged(nameof(FirstFilename));
+                _leftFilename = value;
+                OnPropertyChanged(nameof(LeftFilename));
             }
         }
 
-        private string _secondFilename = null!;
+        private string _rightFilename = null!;
 
-        public string SecondFilename
+        /// <summary>
+        /// Nombre del archivo del lado derecho.
+        /// </summary>
+        public string RightFilename
         {
-            get => _secondFilename;
+            get => _rightFilename;
             set
             {
-                _secondFilename = value;
-                OnPropertyChanged(nameof(SecondFilename));
+                _rightFilename = value;
+                OnPropertyChanged(nameof(RightFilename));
             }
         }
 
-        private BitmapSource _leftImage;
+        private BitmapSource _leftImage = null!;
 
+        /// <summary>
+        /// Imagen a comparar del lado izquierdo, considerada como la 'imagen vieja'.
+        /// </summary>
         public BitmapSource LeftImage
         {
             get => _leftImage;
@@ -121,8 +156,11 @@ namespace Comparator.ViewModel
             }
         }
 
-        private BitmapSource _rightImage;
+        private BitmapSource _rightImage = null!;
 
+        /// <summary>
+        /// Imagen a comparar del lado derecho, considerada como la 'imagen nueva'.
+        /// </summary>
         public BitmapSource RightImage
         {
             get => _rightImage;
@@ -133,8 +171,11 @@ namespace Comparator.ViewModel
             }
         }
 
-        private BitmapSource _centerImage;
+        private BitmapSource _centerImage = null!;
 
+        /// <summary>
+        /// Imagen del centro, solamente incluye las lineas de diferencia entre ambos lados.
+        /// </summary>
         public BitmapSource CenterImage
         {
             get => _centerImage;
@@ -161,46 +202,65 @@ namespace Comparator.ViewModel
             TextModeVisibility = Visibility.Visible;
         });
 
-        public RelayCommand AddComparation => new(_ => OpneComparation());
+        public RelayCommand ChangeComparation => new(_ => OpenSelector());
 
-        private string _leftText = string.Empty;
-        private string _rightText = string.Empty;
+        /// <summary>
+        /// Evento que dispara una petición para actualizar el renderizado de las lineas diferentes.
+        /// La vista esta encargada de recibir este evento y procesar el renderizado.
+        /// </summary>
+        public event ComparatorDelegate? CalculateDiffEvent;
 
-        public ComparatorViewModel(Settings settings) : base(settings)
+        private LabelDpi _dpi;
+        private LabelSize _size;
+
+        public void OpenSelector()
         {
-            OpneComparation();
+            SelectLabelsDialog dialog = new(Settings);
+
+            if (dialog.ShowDialog() == false)
+            {
+                Closed = true;
+                return;
+            }
+
+            /*LoadFiles(
+                new TagFile((GitTag)dialog.LeftGitVer.CurrentItem, dialog.LeftLabel),
+                new TagFile((GitTag)dialog.RightGitVer.CurrentItem, dialog.RightLabel)
+            );*/
+
+            LeftText = new TextDocument(File.ReadAllText(dialog.LeftLabel.Path));
+            RightText = new TextDocument(File.ReadAllText(dialog.RightLabel.Path));
+            LeftFilename = dialog.LeftLabel.Name;
+            RightFilename = dialog.RightLabel.Name;
+
+            _dpi = (LabelDpi)dialog.DpiList.CurrentItem;
+            _size = (LabelSize)dialog.SizeList.CurrentItem;
+
+            // Copiamos el texto de estos 'TextDocument' acá porque,
+            // solo el hilo dueño de estas variables puede accederlos.
+            var leftText = LeftText.Text;
+            var rightText = RightText.Text;
+
+            // Para evitar esperar a que se generen las imagenes para cargar la ventana,
+            // ponemos un timer para que se generen 0.5 segundos despues de cargar la ventana.
+            var timer = new System.Timers.Timer(500) { AutoReset = false };
+            timer.Elapsed += (o, e) => LoadImages(leftText, rightText);
+            timer.Start();
+
+            CalculateDiffEvent?.Invoke();
         }
 
-        private void OpneComparation()
+        private BitmapFrame? GenerateImage(string content)
         {
-            SelectLabelsDialog dialog = new(Settings.EtiquetasDir);
-            if (dialog.ShowDialog() == true)
-            {
-                FirstLabelText = new TextDocument(File.ReadAllText(dialog.FirstLabel.Path));
-                SecondLabelText = new TextDocument(File.ReadAllText(dialog.SecondLabel.Path));
-                FirstFilename = dialog.FirstLabel.Name;
-                SecondFilename = dialog.SecondLabel.Name;
-                _leftText = FirstLabelText.Text;
-                _rightText = SecondLabelText.Text;
-
-                var timer = new System.Timers.Timer(500) { AutoReset = false };
-                timer.Elapsed += LoadImages;
-                timer.Start();
-            }
-            else
-            {
-                FirstLabelText = new TextDocument($"^XA\n\n^XZ");
-                SecondLabelText = new TextDocument($"^XA\n\n^XZ");
-            }
-        }
-
-        private BitmapSource? GenerateImage(string content)
-        {
+            var dpiValue = _dpi.Value;
+            var sizeValue = _size.Value;
             var labelary = new Labelary(content)
-                .FillVariables(Settings)
+                .FillTestVariables(Settings)
                 .LoadFonts();
-            var task = Task.Run(() => labelary.Post("12", "4x6"));
+
+            using var task = Task.Run(() => labelary.Build(dpiValue, sizeValue));
             task.Wait();
+
             var bytes = task.Result;
             if (bytes is not null)
             {
@@ -211,44 +271,93 @@ namespace Comparator.ViewModel
             return null;
         }
 
-        private void LoadImages(object? sender, ElapsedEventArgs e)
+        private void LoadImages(string leftText, string rightText)
         {
-            var limg = GenerateImage(_leftText);
-            if (limg is not null)
+            var leftImg = GenerateImage(leftText);
+            if (leftImg is not null)
             {
-                LeftImage = limg;
+                LeftImage = leftImg;
             }
 
-            var rimg = GenerateImage(_rightText);
-            if (rimg is not null)
+            var rightImg = GenerateImage(rightText);
+            if (rightImg is not null)
             {
-                RightImage = rimg;
+                RightImage = rightImg;
             }
 
-            var firstLines = _leftText.Split(Environment.NewLine);
-            var secondLines = _rightText.Split(Environment.NewLine);
             StringBuilder centerContent = new("^XA");
+            var leftLines = leftText.Split(Environment.NewLine);
+            var rightLines = rightText.Split(Environment.NewLine);
 
-            int i = 0, j = 0;
-            for (; i < firstLines.Length && j < secondLines.Length; i++, j++)
+            for (int i = 0, j = 0; i < leftLines.Length && j < rightLines.Length; i++, j++)
             {
-                if (firstLines[i] != secondLines[j])
+                if (leftLines[i] != rightLines[j])
                 {
-                    centerContent.AppendLine(secondLines[j]);
+                    centerContent.AppendLine(rightLines[j]);
                 }
             }
 
-            for (; j < secondLines.Length; j++)
+            var centerImg = GenerateImage(centerContent.AppendLine("^XZ").ToString());
+            if (centerImg is not null)
             {
-                centerContent.AppendLine(secondLines[j]);
-            }
-
-            centerContent.AppendLine("^XZ");
-            var cimg = GenerateImage(centerContent.ToString());
-            if (cimg is not null)
-            {
-                CenterImage = cimg;
+                CenterImage = centerImg;
             }
         }
+
+        private void LoadFiles(TagFile left, TagFile right)
+        {
+            // Version local, no hace falta traer nada desde el repositorio global.
+            if (left.Tag == GitTag.Local && right.Tag == GitTag.Local)
+            {
+                LeftText = new TextDocument(File.ReadAllText(left.File.Path));
+                RightText = new TextDocument(File.ReadAllText(right.File.Path));
+                LeftFilename = left.File.Name;
+                RightFilename = right.File.Name;
+            }
+            // Etiqueta izquierda es local, derecha se traen desde el repositorio global.
+            else if (left.Tag == GitTag.Local)
+            {
+                LeftText = new TextDocument(File.ReadAllText(left.File.Path));
+                LeftFilename = left.File.Name;
+
+                var rightFile = new LabelFile(LoadGitFile(right));
+                RightText = new TextDocument(File.ReadAllText(rightFile.Path));
+                RightFilename = rightFile.Name;
+            }
+            // Etiqueta derecha es local, izquierda se traen desde el repositorio global.
+            else if (right.Tag == GitTag.Local)
+            {
+                RightText = new TextDocument(File.ReadAllText(right.File.Path));
+                RightFilename = right.File.Name;
+
+                var leftFile = new LabelFile(LoadGitFile(left));
+                LeftText = new TextDocument(File.ReadAllText(leftFile.Path));
+                LeftFilename = leftFile.Name;
+            }
+            // Ambas se traen desde el repositorio global.
+            else
+            {
+                var leftFile = new LabelFile(LoadGitFile(left));
+                LeftText = new TextDocument(File.ReadAllText(leftFile.Path));
+                LeftFilename = leftFile.Name;
+
+                var rightFile = new LabelFile(LoadGitFile(right));
+                RightText = new TextDocument(File.ReadAllText(rightFile.Path));
+                RightFilename = rightFile.Name;
+            }
+        }
+
+        private string LoadGitFile(TagFile tagFile)
+        {
+            string path = Path.Combine(Path.GetTempPath(), "Visual Ternera - Git Temp");
+            Directory.CreateDirectory(path);
+            Git.RunGitCommand("init", "", path);
+            Git.RunGitCommand("remote add origin", Settings.GitRepo, path);
+            Git.RunGitCommand("fetch", "--all --tags --prune", path);
+            Git.RunGitCommand("checkout", $"tags/{tagFile.Tag.Tag} {tagFile.File.Name}", path);
+            return Path.Combine(path, tagFile.File.Name);
+        }
     }
+
+    record struct TagFile(GitTag Tag, LabelFile File);
 }

@@ -1,27 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Core.View
 {
-    /// <summary>
-    /// Interaction logic for AboutPopUp.xaml
-    /// </summary>
     public partial class AboutPopUp : Window
     {
         public AboutPopUp()
         {
             InitializeComponent();
+            verionText.Text = $"Version {Assembly.GetExecutingAssembly().GetName().Version}";
+        }
+
+        private void Button_Click(Object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
         }
     }
 }

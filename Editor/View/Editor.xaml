@@ -145,8 +145,8 @@
 
                 <TreeView.Resources>
                     <HierarchicalDataTemplate
-                        DataType="{x:Type core:LabelDir}"
-                        ItemsSource="{Binding Items}">
+                        DataType="{x:Type core:VirtualDirectory}"
+                        ItemsSource="{Binding RecursiveFiles}">
                         <TextBlock
                             Text="{Binding Name}"
                             FontWeight="DemiBold" />
