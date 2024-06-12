@@ -3,6 +3,7 @@ using Core;
 using Core.Logic;
 using Core.Model;
 using Core.MVVM;
+using Core.ViewLogic;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using ICSharpCode.AvalonEdit.Document;
@@ -188,6 +189,9 @@ namespace Comparator.ViewModel
 
         private SideBySideDiffModel _diff = null!;
 
+        /// <summary>
+        /// Modelo de la diferencia entre dos archivos.
+        /// </summary>
         public SideBySideDiffModel Diff
         {
             get => _diff;
@@ -216,6 +220,16 @@ namespace Comparator.ViewModel
 
         public RelayCommand ChangeComparation => new(_ => OpenSelector());
 
+        public RelayCommand RefreshComparation => new(_ =>
+        {
+            LeftText = new TextDocument(File.ReadAllText(_leftFile.Path));
+            RightText = new TextDocument(File.ReadAllText(_rightFile.Path));
+
+            Diff = SideBySideDiffBuilder.Diff(LeftText.Text, RightText.Text);
+            CalculateDiffEvent?.Invoke();
+            LoadImages(LeftText.Text, RightText.Text);
+        });
+
         /// <summary>
         /// Evento que dispara una petición para actualizar el renderizado de las lineas diferentes.
         /// La vista esta encargada de recibir este evento y procesar el renderizado.
@@ -224,6 +238,8 @@ namespace Comparator.ViewModel
 
         private LabelDpi _dpi;
         private LabelSize _size;
+        private LabelFile _leftFile = null!;
+        private LabelFile _rightFile = null!;
 
         public void OpenSelector()
         {
@@ -234,11 +250,13 @@ namespace Comparator.ViewModel
                 Closed = true;
                 return;
             }
+            _leftFile = dialog.LeftLabel;
+            _rightFile = dialog.RightLabel;
 
-            LeftText = new TextDocument(File.ReadAllText(dialog.LeftLabel.Path));
-            RightText = new TextDocument(File.ReadAllText(dialog.RightLabel.Path));
-            LeftFilename = dialog.LeftLabel.Name;
-            RightFilename = dialog.RightLabel.Name;
+            LeftText = new TextDocument(File.ReadAllText(_leftFile.Path));
+            RightText = new TextDocument(File.ReadAllText(_rightFile.Path));
+            LeftFilename = _leftFile.Name;
+            RightFilename = _rightFile.Name;
 
             _dpi = (LabelDpi)dialog.DpiList.CurrentItem;
             _size = (LabelSize)dialog.SizeList.CurrentItem;

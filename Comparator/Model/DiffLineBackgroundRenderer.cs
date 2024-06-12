@@ -8,7 +8,7 @@ namespace Comparator.Model
     {
         public KnownLayer Layer => KnownLayer.Background;
         private static Color deletedColor = Color.FromArgb(50, 232, 155, 180);
-        private static Color modifiedColor = Color.FromArgb(50, 232, 155, 180);
+        private static Color modifiedColor = Color.FromArgb(50, 232, 194, 155);
         private static Color insertedColor = Color.FromArgb(50, 181, 232, 155);
 
         public void Draw(TextView textView, DrawingContext drawingContext)
