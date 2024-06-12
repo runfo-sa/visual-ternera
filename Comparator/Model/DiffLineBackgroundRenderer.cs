@@ -1,26 +1,50 @@
-﻿using ICSharpCode.AvalonEdit.Rendering;
+﻿using DiffPlex.DiffBuilder.Model;
+using ICSharpCode.AvalonEdit.Rendering;
 using System.Windows.Media;
 
 namespace Comparator.Model
 {
-    public class DiffLineBackgroundRenderer(List<int> diffLines, Color lineColor) : IBackgroundRenderer
+    public class DiffLineBackgroundRenderer(List<DiffPiece> lines) : IBackgroundRenderer
     {
         public KnownLayer Layer => KnownLayer.Background;
+        private static Color deletedColor = Color.FromArgb(50, 232, 155, 180);
+        private static Color modifiedColor = Color.FromArgb(50, 232, 155, 180);
+        private static Color insertedColor = Color.FromArgb(50, 181, 232, 155);
 
         public void Draw(TextView textView, DrawingContext drawingContext)
         {
-            foreach (var num in diffLines)
+            foreach (var line in lines)
             {
-                var line = textView.GetVisualLine(num);
-
-                if (line != null)
+                if (line.Position is not null)
                 {
-                    foreach (var rc in BackgroundGeometryBuilder.GetRectsFromVisualSegment(textView, line, 0, 10000))
+                    var visualLine = textView.GetVisualLine(line.Position!.Value);
+
+                    if (visualLine != null)
                     {
-                        drawingContext.DrawRectangle(
-                            new SolidColorBrush(lineColor), null,
-                            new System.Windows.Rect(0, rc.Top, textView.ActualWidth, rc.Height)
-                        );
+                        foreach (var rc in BackgroundGeometryBuilder.GetRectsFromVisualSegment(textView, visualLine, 0, 10000))
+                        {
+                            if (line.Type == ChangeType.Deleted)
+                            {
+                                drawingContext.DrawRectangle(
+                                    new SolidColorBrush(deletedColor), null,
+                                    new System.Windows.Rect(0, rc.Top, textView.ActualWidth, rc.Height)
+                                );
+                            }
+                            else if (line.Type == ChangeType.Inserted)
+                            {
+                                drawingContext.DrawRectangle(
+                                    new SolidColorBrush(insertedColor), null,
+                                    new System.Windows.Rect(0, rc.Top, textView.ActualWidth, rc.Height)
+                                );
+                            }
+                            else if (line.Type == ChangeType.Modified)
+                            {
+                                drawingContext.DrawRectangle(
+                                    new SolidColorBrush(modifiedColor), null,
+                                    new System.Windows.Rect(0, rc.Top, textView.ActualWidth, rc.Height)
+                                );
+                            }
+                        }
                     }
                 }
             }

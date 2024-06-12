@@ -1,10 +1,10 @@
 ﻿using Comparator.View;
 using Core;
-using Core.Git;
 using Core.Logic;
 using Core.Model;
 using Core.MVVM;
-using Core.ViewLogic;
+using DiffPlex.DiffBuilder;
+using DiffPlex.DiffBuilder.Model;
 using ICSharpCode.AvalonEdit.Document;
 using System.IO;
 using System.Text;
@@ -186,6 +186,18 @@ namespace Comparator.ViewModel
             }
         }
 
+        private SideBySideDiffModel _diff = null!;
+
+        public SideBySideDiffModel Diff
+        {
+            get => _diff;
+            set
+            {
+                _diff = value;
+                OnPropertyChanged(nameof(Diff));
+            }
+        }
+
         public RelayCommand SwitchToImageMode => new(_ =>
         {
             TextMode = false;
@@ -223,11 +235,6 @@ namespace Comparator.ViewModel
                 return;
             }
 
-            /*LoadFiles(
-                new TagFile((GitTag)dialog.LeftGitVer.CurrentItem, dialog.LeftLabel),
-                new TagFile((GitTag)dialog.RightGitVer.CurrentItem, dialog.RightLabel)
-            );*/
-
             LeftText = new TextDocument(File.ReadAllText(dialog.LeftLabel.Path));
             RightText = new TextDocument(File.ReadAllText(dialog.RightLabel.Path));
             LeftFilename = dialog.LeftLabel.Name;
@@ -247,6 +254,7 @@ namespace Comparator.ViewModel
             timer.Elapsed += (o, e) => LoadImages(leftText, rightText);
             timer.Start();
 
+            Diff = SideBySideDiffBuilder.Diff(leftText, rightText);
             CalculateDiffEvent?.Invoke();
         }
 
@@ -285,79 +293,29 @@ namespace Comparator.ViewModel
                 RightImage = rightImg;
             }
 
-            StringBuilder centerContent = new("^XA");
-            var leftLines = leftText.Split(Environment.NewLine);
-            var rightLines = rightText.Split(Environment.NewLine);
-
-            for (int i = 0, j = 0; i < leftLines.Length && j < rightLines.Length; i++, j++)
-            {
-                if (leftLines[i] != rightLines[j])
+            var centerText = Diff.NewText.Lines
+                .Aggregate(new StringBuilder(), (p, n) =>
                 {
-                    centerContent.AppendLine(rightLines[j]);
-                }
+                    if (n.Type == ChangeType.Unchanged) { return p; }
+                    return p.AppendLine(n.Text);
+                })
+                .ToString();
+
+            if (!centerText.StartsWith("^XA"))
+            {
+                centerText = "^XA ^CI28" + centerText;
             }
 
-            var centerImg = GenerateImage(centerContent.AppendLine("^XZ").ToString());
+            if (!centerText.EndsWith("^XZ"))
+            {
+                centerText += "^XZ";
+            }
+
+            var centerImg = GenerateImage(centerText);
             if (centerImg is not null)
             {
                 CenterImage = centerImg;
             }
         }
-
-        private void LoadFiles(TagFile left, TagFile right)
-        {
-            // Version local, no hace falta traer nada desde el repositorio global.
-            if (left.Tag == GitTag.Local && right.Tag == GitTag.Local)
-            {
-                LeftText = new TextDocument(File.ReadAllText(left.File.Path));
-                RightText = new TextDocument(File.ReadAllText(right.File.Path));
-                LeftFilename = left.File.Name;
-                RightFilename = right.File.Name;
-            }
-            // Etiqueta izquierda es local, derecha se traen desde el repositorio global.
-            else if (left.Tag == GitTag.Local)
-            {
-                LeftText = new TextDocument(File.ReadAllText(left.File.Path));
-                LeftFilename = left.File.Name;
-
-                var rightFile = new LabelFile(LoadGitFile(right));
-                RightText = new TextDocument(File.ReadAllText(rightFile.Path));
-                RightFilename = rightFile.Name;
-            }
-            // Etiqueta derecha es local, izquierda se traen desde el repositorio global.
-            else if (right.Tag == GitTag.Local)
-            {
-                RightText = new TextDocument(File.ReadAllText(right.File.Path));
-                RightFilename = right.File.Name;
-
-                var leftFile = new LabelFile(LoadGitFile(left));
-                LeftText = new TextDocument(File.ReadAllText(leftFile.Path));
-                LeftFilename = leftFile.Name;
-            }
-            // Ambas se traen desde el repositorio global.
-            else
-            {
-                var leftFile = new LabelFile(LoadGitFile(left));
-                LeftText = new TextDocument(File.ReadAllText(leftFile.Path));
-                LeftFilename = leftFile.Name;
-
-                var rightFile = new LabelFile(LoadGitFile(right));
-                RightText = new TextDocument(File.ReadAllText(rightFile.Path));
-                RightFilename = rightFile.Name;
-            }
-        }
-
-        private string LoadGitFile(TagFile tagFile)
-        {
-            string path = Path.Combine(Path.GetTempPath(), "Visual Ternera - Git Temp");
-            Directory.CreateDirectory(path);
-            Git.RunGitCommand("init", "", path);
-            Git.RunGitCommand("remote add origin", Settings.GitRepo, path);
-            Git.RunGitCommand("fetch", "--all --tags --prune", path);
-            Git.RunGitCommand("checkout", $"tags/{tagFile.Tag.Tag} {tagFile.File.Name}", path);
-            return Path.Combine(path, tagFile.File.Name);
-        }
     }
-
-    record struct TagFile(GitTag Tag, LabelFile File);
 }
