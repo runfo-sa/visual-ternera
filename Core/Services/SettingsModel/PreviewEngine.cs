@@ -1,4 +1,4 @@
-﻿namespace Core.Logic.SettingsModel
+﻿namespace Core.Services.SettingsModel
 {
     public enum PreviewEngine
     {

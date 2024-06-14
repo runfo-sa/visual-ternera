@@ -1,9 +1,9 @@
 ﻿using Core;
 using Core.Interfaces;
 using Core.Logic;
-using Core.Logic.SettingsModel;
 using Core.Model;
 using Core.MVVM;
+using Core.Services.SettingsModel;
 using Editor.Model;
 using System.IO;
 using System.Windows.Data;

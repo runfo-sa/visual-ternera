@@ -1,24 +1,20 @@
-﻿using Core.Logic.SettingsModel;
-using ICSharpCode.AvalonEdit.Highlighting;
+﻿using Core.Services.SettingsModel;
 using Main.View;
 using Main.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
-using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Windows;
-using System.Windows.Markup;
 using YamlDotNet.Serialization;
 
 namespace Main
 {
-    public partial class App : Application
+    public partial class App : PrismApplication
     {
         private readonly Core.Logic.Settings _settings;
         public readonly IServiceProvider ServiceProvider;
         public ResourceDictionary ThemeDictionary => Resources.MergedDictionaries[0];
 
-        public App()
+        /*public void _APP()
         {
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(ExceptionPopUp);
 
@@ -55,7 +51,7 @@ namespace Main
                     HighlightingManager.Instance
                 )
             );
-        }
+        }*/
 
         private static void ConfigureServices(ServiceCollection services)
         {
@@ -76,13 +72,8 @@ namespace Main
         {
             base.OnStartup(e);
             ChangeTheme(_settings.Theme);
-            ServiceProvider.GetRequiredService<MainView>().Show();
         }
 
-        /// <summary>
-        /// Cambia el tema de la aplicación,
-        /// ademas del enum a pasar debe a su vez existir un color scheme .xaml con el mismo nombre.
-        /// </summary>
         public void ChangeTheme(Theme theme)
         {
             var uri = new Uri($"pack://application:,,,/AdonisUI;component/ColorSchemes/{Enum.GetName(theme)}.xaml");
@@ -95,6 +86,15 @@ namespace Main
             Exception e = (Exception)args.ExceptionObject;
             ExceptionPopUp popUp = new(e.Message);
             popUp.ShowDialog();
+        }
+
+        protected override Window CreateShell()
+        {
+            return Container.Resolve<MainView>();
+        }
+
+        protected override void RegisterTypes(IContainerRegistry containerRegistry)
+        {
         }
     }
 }

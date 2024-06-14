@@ -1,9 +1,9 @@
-﻿using Core.Logic.SettingsModel;
+﻿using Core.Services.SettingsModel;
 using YamlDotNet.Serialization;
 
-namespace Core.Logic
+namespace Core.Services
 {
-    public class Settings
+    public class Settings : ISettings
     {
         [YamlMember(Description = " - Dirección de etiquetas")]
         public required string EtiquetasDir { get; set; }
