@@ -75,6 +75,7 @@
                     Command="{Binding SaveAsFile}" />
                 <MenuItem
                     Header="_Ajustes"
+                    IsEnabled="False"
                     Command="{Binding OpenSettings}" />
                 <MenuItem
                     Header="_Salir"
@@ -85,6 +86,10 @@
                 <MenuItem
                     Header="_Preview on save"
                     IsChecked="{Binding PreviewOnSave}"
+                    IsCheckable="True" />
+                <MenuItem
+                    Header="_Linting"
+                    IsChecked="{Binding EnableLinting}"
                     IsCheckable="True" />
             </MenuItem>
             <MenuItem

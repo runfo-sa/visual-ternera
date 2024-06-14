@@ -9,6 +9,7 @@
     xmlns:model="clr-namespace:Editor.Model"
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
+    xmlns:control="clr-namespace:Editor.Controls"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=viewmodel:EditorViewModel}"
     d:DesignHeight="450"
@@ -80,7 +81,8 @@
         <DataTemplate
             x:Key="contentTemplate"
             DataType="{x:Type model:TabItem}">
-            <avalon:TextEditor
+            <control:LinterTextEditor
+                LinterData="{Binding LintingData}"
                 Visibility="{Binding Visibility}"
                 SyntaxHighlighting="ZPL"
                 ShowLineNumbers="True"

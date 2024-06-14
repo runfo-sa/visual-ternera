@@ -1,5 +1,8 @@
 ﻿using Core;
+using Core.Interfaces;
 using Core.Logic;
+using Core.Logic.SettingsModel;
+using Core.Model;
 using Core.MVVM;
 using Core.View;
 using Core.ViewLogic;
@@ -68,6 +71,19 @@ namespace Editor.ViewModel
             {
                 _previewOnSave = value;
                 OnPropertyChanged(nameof(PreviewOnSave));
+            }
+        }
+
+        private bool _enableLinting = true;
+
+        public bool EnableLinting
+        {
+            get => _enableLinting;
+            set
+            {
+                _enableLinting = value;
+                OnPropertyChanged(nameof(EnableLinting));
+                RefreshLinting.Execute(null);
             }
         }
 
@@ -200,10 +216,10 @@ namespace Editor.ViewModel
                 {
                     Interval = TimeSpan.FromMilliseconds(200)
                 };
-                doubleClickTimer.Tick += (sender, e) =>
+                doubleClickTimer.Tick += async (sender, e) =>
                 {
-                    OpenTab(label);
                     doubleClickTimer.Stop();
+                    await OpenTab(label);
                     _doubleClick = false;
                 };
                 doubleClickTimer.Start();
@@ -274,6 +290,22 @@ namespace Editor.ViewModel
         {
             ErrorsWindow = Visibility.Hidden;
             PreviewErrors = null;
+        });
+
+        public RelayCommand RefreshLinting => new(async _ =>
+        {
+            if (EnableLinting)
+            {
+                await UpdateLinting();
+            }
+            else
+            {
+                UnpinnedTab.ClearLinting();
+                foreach (var tab in Tabs)
+                {
+                    tab.ClearLinting();
+                }
+            }
         });
 
         private void Open(object? obj)
@@ -361,7 +393,7 @@ namespace Editor.ViewModel
             SelectedTab = Tabs.Count;
         }
 
-        private void OpenTab(LabelFile label)
+        private async Task OpenTab(LabelFile label)
         {
             var selected = Tabs.FirstOrDefault(t => t.Header == label!.Name);
             if (selected is not null)
@@ -379,6 +411,32 @@ namespace Editor.ViewModel
                 {
                     AddUnpinnedTab(label.Name, content, label.Path);
                 }
+
+                if (EnableLinting)
+                {
+                    await UpdateLinting();
+                }
+            }
+        }
+
+        private async Task UpdateLinting()
+        {
+            TabItem tab = SelectedTab == 0 ? UnpinnedTab : Tabs[SelectedTab - 1];
+            var content = tab.EditorBody.Text;
+
+            IPreview preview = Settings.PreviewEngine switch
+            {
+                PreviewEngine.Labelary => new Labelary(content),
+                _ => throw new NotImplementedException()
+            };
+
+            var dpi = (LabelDpi)PreviewViewModel.DpiList.CurrentItem;
+            var size = (LabelSize)PreviewViewModel.SizeList.CurrentItem;
+
+            var lintings = await preview.Linting(content, dpi.Value, size.Value);
+            if (lintings is not null)
+            {
+                tab.LintingData = lintings.Select(LintingInfo.Parse).ToList();
             }
         }
     }

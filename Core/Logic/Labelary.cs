@@ -23,6 +23,36 @@ namespace Core.Logic
         private readonly StringBuilder _error = new();
         public string Error => _error.ToString();
 
+        public async Task<string[]?> Linting(string codigo, string dpi, string size)
+        {
+            try
+            {
+                using HttpClient client = new()
+                {
+                    Timeout = TimeSpan.FromSeconds(10.0)
+                };
+
+                using StringContent body = new(
+                    codigo,
+                    Encoding.ASCII,
+                    "application/x-www-form-urlencoded"
+                );
+
+                string uri = $"http://api.labelary.com/v1/printers/{dpi}dpmm/labels/{size}/0/";
+                client.DefaultRequestHeaders.Add("X-Linter", "On");
+
+                using HttpResponseMessage response = await client.PostAsync(uri, body);
+                response.EnsureSuccessStatusCode();
+                return WarningParse(response.Headers.GetValues("X-Warnings").First());
+            }
+            catch (Exception err)
+            {
+                Trace.TraceError(err.Message);
+            }
+
+            return null;
+        }
+
         public IPreview FillProduct(Settings settings, string codigo)
         {
             using var dbContext = new IdeDbContext(settings.SqlConnection);
@@ -135,7 +165,7 @@ namespace Core.Logic
         {
             try
             {
-                using HttpClient _client = new()
+                using HttpClient client = new()
                 {
                     Timeout = TimeSpan.FromSeconds(10.0)
                 };
@@ -147,9 +177,8 @@ namespace Core.Logic
                 );
 
                 string uri = $"http://api.labelary.com/v1/printers/{dpi}dpmm/labels/{size}/0/";
-                using HttpResponseMessage response = await _client.PostAsync(uri, body);
+                using HttpResponseMessage response = await client.PostAsync(uri, body);
                 response.EnsureSuccessStatusCode();
-
                 return await response.Content.ReadAsByteArrayAsync();
             }
             catch (Exception err)
@@ -158,6 +187,28 @@ namespace Core.Logic
             }
 
             return null;
+        }
+
+        private static string[] WarningParse(string warnings)
+        {
+            int count = 0;
+            int offset = 0;
+            int oldOffset = 0;
+            List<string> warningsList = [];
+
+            foreach (char c in warnings)
+            {
+                if (c == '|') count++;
+                if (count == 5)
+                {
+                    warningsList.Add(warnings[oldOffset..offset]);
+                    oldOffset = offset + 1;
+                    count = 0;
+                }
+                offset++;
+            }
+
+            return [.. warningsList];
         }
     }
 }

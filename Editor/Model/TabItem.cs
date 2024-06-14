@@ -51,6 +51,18 @@ namespace Editor.Model
             }
         }
 
+        private List<LintingInfo> _lintingData = [];
+
+        public List<LintingInfo> LintingData
+        {
+            get => _lintingData;
+            set
+            {
+                _lintingData = value;
+                OnPropertyChanged(nameof(LintingData));
+            }
+        }
+
         public TabItem(string header, TextDocument editorBody, string? path = null, bool pinned = true)
         {
             Path = path;
@@ -113,6 +125,11 @@ namespace Editor.Model
                     }
                 }
             }
+        }
+
+        public void ClearLinting()
+        {
+            LintingData = [];
         }
     }
 }

@@ -15,6 +15,13 @@ namespace Core.Interfaces
         public string Error { get; }
 
         /// <summary>
+        ///
+        /// </summary>
+        /// <param name="codigo">Codigo del producto</param>
+        /// <returns>A si mismo, para concatenar metodos</returns>
+        public Task<string[]?> Linting(string codigo, string dpi, string size);
+
+        /// <summary>
         /// Completa las variables de una etiqueta con los datos de un producto especificado.
         /// </summary>
         /// <param name="codigo">Codigo del producto</param>
