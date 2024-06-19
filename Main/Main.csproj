@@ -19,27 +19,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\dark-theme.png" />
-    <None Remove="Resources\light-theme.png" />
     <None Remove="Resources\ZPL.xshd" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
     <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
-    <PackageReference Include="Azure.Identity" Version="1.11.4" />
+    <PackageReference Include="Azure.Identity" Version="1.12.0" />
+    <PackageReference Include="Material.Icons.WPF" Version="2.1.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Prism.DryIoc" Version="9.0.401-pre" />
-    <PackageReference Include="YamlDotNet" Version="15.1.6" />
+    <PackageReference Include="Prism.Wpf" Version="9.0.401-pre" />
+    <PackageReference Include="YamlDotNet" Version="15.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cohere\Cohere.csproj" />
-    <ProjectReference Include="..\Comparator\Comparator.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\Editor\Editor.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,11 +45,6 @@
     <Reference Include="office">
       <HintPath>..\..\..\..\..\..\..\..\Windows\assembly\GAC_MSIL\office\15.0.0.0__71e9bce111e9429c\office.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\dark-theme.png" />
-    <Resource Include="Resources\light-theme.png" />
   </ItemGroup>
 
   <ItemGroup>

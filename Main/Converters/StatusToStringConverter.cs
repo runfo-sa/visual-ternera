@@ -1,4 +1,4 @@
-﻿using Main.Model;
+﻿using Core.Database.ServiceDbModels;
 using System.Globalization;
 using System.Windows.Data;
 

@@ -1,7 +1,6 @@
 ﻿using AdonisUI.Controls;
-using Core.Logger;
 
-namespace Main.View
+namespace Main.Views
 {
     public partial class ExceptionPopUp : AdonisWindow
     {
@@ -13,7 +12,6 @@ namespace Main.View
 
         private void okButton_Click(Object sender, System.Windows.RoutedEventArgs e)
         {
-            Logger.Log(errorMessage.Text);
             DialogResult = true;
         }
     }

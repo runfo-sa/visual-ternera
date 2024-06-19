@@ -1,4 +1,4 @@
-﻿using Core.Logic;
+﻿using Core.Services;
 
 namespace Core.Interfaces
 {
@@ -26,13 +26,13 @@ namespace Core.Interfaces
         /// </summary>
         /// <param name="codigo">Codigo del producto</param>
         /// <returns>A si mismo, para concatenar metodos</returns>
-        public IPreview FillProduct(Settings settings, string codigo);
+        public IPreview FillProduct(SettingsService settings, string codigo);
 
         /// <summary>
         /// Completa las variables de una etiqueta con datos de prueba.
         /// </summary>
         /// <returns>A si mismo, para concatenar metodos</returns>
-        public IPreview FillTestVariables(Settings settings);
+        public IPreview FillTestVariables(SettingsService settings);
 
         /// <summary>
         /// Carga las fuentes de texto para poder renderizar distintos alfabetos.

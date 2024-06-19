@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Main.Model
+namespace Core.Database.ServiceDbModels
 {
     /// <summary>
     /// Representación del estado de un cliente del servicio
@@ -28,27 +28,5 @@ namespace Main.Model
         /// Ultima conexión del cliente con el servicio
         /// </summary>
         public DateTime UltimaConexion { get; set; }
-    }
-
-    /// <summary>
-    /// Instancia de conexión con la base de datos del servicio
-    /// </summary>
-    public class ServiceDbContext(string sqlConnection) : DbContext()
-    {
-        /// <summary>
-        /// Tabla que almacena el estado de todos los clientes
-        /// </summary>
-        public DbSet<Client> EstadoCliente { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Client>().ToTable(b => b.IsMemoryOptimized());
-            modelBuilder.HasDefaultSchema("service");
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(sqlConnection);
-        }
     }
 }

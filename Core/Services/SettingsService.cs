@@ -1,9 +1,10 @@
 ﻿using Core.Services.SettingsModel;
+using System.IO;
 using YamlDotNet.Serialization;
 
 namespace Core.Services
 {
-    public class Settings : ISettings
+    public class SettingsService
     {
         [YamlMember(Description = " - Dirección de etiquetas")]
         public required string EtiquetasDir { get; set; }
@@ -18,18 +19,34 @@ namespace Core.Services
         public Theme Theme { get; set; } = Theme.Dark;
 
         [YamlMember(Description = " - Region a usar por el programa, para darle formato a las fechas y numeros")]
-        public required string Culture { get; set; } = "es-MX";
+        public string Culture { get; set; } = "es-MX";
 
         [YamlMember(Description = " - Repositorio donde se almacenan globalmente las eitquetas")]
         public required string GitRepo { get; set; }
 
         [YamlMember(Description = " - Extensión de los archivos de etiqueta, sirve para filtrar")]
-        public required string EtiquetasExtension { get; set; } = "e01";
+        public string EtiquetasExtension { get; set; } = "e01";
 
         [YamlMember(Description = " - Lista de directorios virtuales, por los cuales se deberian filtrar la carpeta de etiquetas")]
         public required List<FilterDirectory> VirtualDirectories { get; set; }
 
         [YamlMember(Description = " - Modulo utilizado para generar la preview de etiquetas")]
         public PreviewEngine PreviewEngine { get; set; } = PreviewEngine.Labelary;
+
+        private static readonly Lazy<SettingsService> Lazy =
+            new(() =>
+            {
+                var deserializer = new DeserializerBuilder().Build();
+                return deserializer.Deserialize<SettingsService>(File.ReadAllText("Settings.yaml"));
+            });
+
+        public static SettingsService Instance => Lazy.Value;
+
+        public static void Save()
+        {
+            var serializer = new SerializerBuilder().Build();
+            var yaml = serializer.Serialize(Instance);
+            File.WriteAllText("Settings.yaml", yaml);
+        }
     }
 }

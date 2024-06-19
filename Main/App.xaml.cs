@@ -1,32 +1,27 @@
-﻿using Core.Services.SettingsModel;
-using Main.View;
-using Main.ViewModel;
-using Microsoft.Extensions.DependencyInjection;
-using System.IO;
+﻿using AdonisUI;
+using Core.Logger;
+using Core.Services;
+using Core.Services.SettingsModel;
+using ICSharpCode.AvalonEdit.Highlighting;
+using Main.ViewModels;
+using Main.Views;
+using System.Globalization;
+using System.Reflection;
 using System.Windows;
-using YamlDotNet.Serialization;
+using System.Windows.Markup;
 
 namespace Main
 {
     public partial class App : PrismApplication
     {
-        private readonly Core.Logic.Settings _settings;
-        public readonly IServiceProvider ServiceProvider;
-        public ResourceDictionary ThemeDictionary => Resources.MergedDictionaries[0];
-
-        /*public void _APP()
+        protected override Window CreateShell()
         {
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(ExceptionPopUp);
-
-            ServiceCollection services = new();
-            ConfigureServices(services);
-            ServiceProvider = services.BuildServiceProvider();
-
-            _settings = ServiceProvider.GetRequiredService<Core.Logic.Settings>();
+            // Vinculamos las exepciones no capturadas a una funcion
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(ResolveException);
 
             // Asignamos la región a utilizar para el formato de números y fechas
-            Thread.CurrentThread.CurrentCulture = new CultureInfo(_settings.Culture);
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo(_settings.Culture);
+            Thread.CurrentThread.CurrentCulture = new CultureInfo(SettingsService.Instance.Culture);
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(SettingsService.Instance.Culture);
             FrameworkElement.LanguageProperty.OverrideMetadata(
                 typeof(FrameworkElement),
                 new FrameworkPropertyMetadata(
@@ -51,50 +46,39 @@ namespace Main
                     HighlightingManager.Instance
                 )
             );
-        }*/
 
-        private static void ConfigureServices(ServiceCollection services)
-        {
-            services.AddSingleton(provider =>
-            {
-                var deserializer = new DeserializerBuilder()
-                    .Build();
-                return deserializer.Deserialize<Core.Logic.Settings>(File.ReadAllText("Settings.yaml"));
-            });
-            services.AddSingleton<MainViewModel>();
-            services.AddSingleton(provider => new MainView()
-            {
-                DataContext = provider.GetRequiredService<MainViewModel>()
-            });
-        }
+            ChangeTheme(SettingsService.Instance.Theme);
 
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            base.OnStartup(e);
-            ChangeTheme(_settings.Theme);
-        }
-
-        public void ChangeTheme(Theme theme)
-        {
-            var uri = new Uri($"pack://application:,,,/AdonisUI;component/ColorSchemes/{Enum.GetName(theme)}.xaml");
-            ThemeDictionary.MergedDictionaries.Clear();
-            ThemeDictionary.MergedDictionaries.Add(new ResourceDictionary() { Source = uri });
-        }
-
-        private void ExceptionPopUp(object sender, UnhandledExceptionEventArgs args)
-        {
-            Exception e = (Exception)args.ExceptionObject;
-            ExceptionPopUp popUp = new(e.Message);
-            popUp.ShowDialog();
-        }
-
-        protected override Window CreateShell()
-        {
-            return Container.Resolve<MainView>();
+            return Container.Resolve<Views.Main>();
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+        }
+
+        protected override void ConfigureViewModelLocator()
+        {
+            base.ConfigureViewModelLocator();
+            ViewModelLocationProvider.Register<Views.Main, MainViewModel>();
+        }
+
+        protected override IModuleCatalog CreateModuleCatalog()
+        {
+            return new DirectoryModuleCatalog() { ModulePath = @".\\Modules" };
+        }
+
+        public void ResolveException(object? sender, UnhandledExceptionEventArgs args)
+        {
+            Exception ex = (Exception)args.ExceptionObject;
+            ExceptionPopUp popUp = new(ex.GetBaseException().Message);
+            Logger.Log($"Message: {ex.GetBaseException().Message}{Environment.NewLine}Stack Trace:{Environment.NewLine}{ex.GetBaseException().StackTrace}");
+            popUp.ShowDialog();
+        }
+
+        public void ChangeTheme(Theme theme)
+        {
+            ResourceLocator.SetColorScheme(Current.Resources,
+                theme == Theme.Dark ? ResourceLocator.DarkColorScheme : ResourceLocator.LightColorScheme);
         }
     }
 }

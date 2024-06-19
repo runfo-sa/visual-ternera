@@ -1,4 +1,4 @@
-﻿namespace Main.Model
+﻿namespace Core.Database.ServiceDbModels
 {
     /// <summary>
     /// Estado en el que se encuentra el cliente

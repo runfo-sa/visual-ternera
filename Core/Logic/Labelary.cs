@@ -2,6 +2,7 @@
 using Core.Database.Model;
 using Core.Interfaces;
 using Core.Logic.LabelaryModel;
+using Core.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -53,7 +54,7 @@ namespace Core.Logic
             return null;
         }
 
-        public IPreview FillProduct(Settings settings, string codigo)
+        public IPreview FillProduct(SettingsService settings, string codigo)
         {
             using var dbContext = new IdeDbContext(settings.SqlConnection);
             var codigoParam = new SqlParameter("@Codigo", codigo);
@@ -104,7 +105,7 @@ namespace Core.Logic
             return this;
         }
 
-        public IPreview FillTestVariables(Settings settings)
+        public IPreview FillTestVariables(SettingsService settings)
         {
             using var dbContext = new IdeDbContext(settings.SqlConnection);
             Dictionary<string, string> keyValues = dbContext.EtiquetasDatosPrueba

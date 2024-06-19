@@ -21,7 +21,7 @@ namespace Core.Logger
 
             string separator = new('-', 128);
             File.AppendAllText(file,
-                $"{separator}{Environment.NewLine}Error - {date:HH::mm:ss}{Environment.NewLine}{separator}{Environment.NewLine}{content}{Environment.NewLine}");
+                $"[Error] - [{date:HH::mm:ss}]{Environment.NewLine}{content}{Environment.NewLine}{separator}{Environment.NewLine}");
 
             return file;
         }

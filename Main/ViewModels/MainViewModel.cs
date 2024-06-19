@@ -1,90 +1,41 @@
-﻿using AdonisUI.Controls;
-using Cohere.ViewModel;
-using Comparator.ViewModel;
-using Core;
+﻿using Core.Database;
+using Core.Database.ServiceDbModels;
+using Core.Events;
 using Core.Git;
-using Core.Interfaces;
-using Core.MVVM;
+using Core.Services;
 using Core.Services.SettingsModel;
-using Editor.ViewModel;
-using Main.Model;
+using Main.Models;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using YamlDotNet.Serialization;
 
-namespace Main.ViewModel
+namespace Main.ViewModels
 {
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : BindableBase
     {
-        public static string EditorTitle => Editor.Editor.Title;
-        public static string CohereTitle => Cohere.Cohere.Title;
-        public static string ComparatorTitle => Comparator.Comparator.Title;
-        public ObservableCollection<Client> ClientsList { get; set; }
-        public GitTag GitTag { get; set; }
-        public string GitTagUri { get; set; }
+        private readonly IModuleManager _moduleManager;
+        private readonly IEventAggregator _eventAggregator;
 
         private int _lastRefreshed = 0;
-
         public int LastRefreshed
         {
             get => _lastRefreshed;
-            set
-            {
-                _lastRefreshed = value;
-                OnPropertyChanged(nameof(LastRefreshed));
-            }
+            set => SetProperty(ref _lastRefreshed, value);
         }
 
-        private BitmapImage _themeIcon = null!;
+        public GitTag GitTag { get; set; }
+        public string GitTagUri { get; set; } = string.Empty;
+        public ObservableCollection<Client> ClientsList { get; set; }
+        public ObservableCollection<ModuleAction> ModulesButtons { get; set; }
 
-        public BitmapImage ThemeIcon
+        public DelegateCommand ChangeThemeCommand { get; private set; }
+        public DelegateCommand UpdateClientsCommand { get; private set; }
+
+        public MainViewModel(IModuleManager moduleManager, IEventAggregator eventAggregator)
         {
-            get => _themeIcon;
-            set
-            {
-                _themeIcon = value;
-                OnPropertyChanged(nameof(ThemeIcon));
-            }
-        }
-
-        public RelayCommand ChangeTheme => new(_ =>
-        {
-            Settings.Theme = Settings.Theme switch
-            {
-                Theme.Dark => Theme.Light,
-                Theme.Light => Theme.Dark,
-                _ => throw new NotImplementedException()
-            };
-
-            var uri = Settings.Theme switch
-            {
-                Theme.Dark => "/Main;component/Resources/dark-theme.png",
-                Theme.Light => "/Main;component/Resources/light-theme.png",
-                _ => throw new NotImplementedException(),
-            };
-
-            ThemeIcon = new BitmapImage(new Uri(uri, UriKind.Relative));
-            ((App)Application.Current).ChangeTheme(Settings.Theme);
-
-            var serializer = new SerializerBuilder().Build();
-            var yaml = serializer.Serialize(Settings);
-            File.WriteAllText("Settings.yaml", yaml);
-        });
-
-        public RelayCommand OpenEditor => OpenWindow<Editor.Editor, EditorViewModel>(Settings);
-        public RelayCommand OpenCohere => OpenWindow<Cohere.Cohere, CohereViewModel>(Settings);
-        public RelayCommand OpenComparator => OpenWindow<Comparator.Comparator, ComparatorViewModel>(Settings);
-        public RelayCommand RefreshClients => new(_ => UpdateClients());
-
-        public MainViewModel(Core.Logic.Settings settings) : base(settings)
-        {
-            ThemeIcon = new(new Uri($"/Main;component/Resources/{Enum.GetName(Settings.Theme)!.ToLower()}-theme.png", UriKind.Relative));
-
-            var dbContext = new ServiceDbContext(Settings.SqlConnection);
-            ClientsList = [.. dbContext.EstadoCliente];
+            _moduleManager = moduleManager;
+            _eventAggregator = eventAggregator;
 
             // Reloj que refresca la lista de clientes cada 30 minutos
             DispatcherTimer refreshTimer = new()
@@ -102,40 +53,20 @@ namespace Main.ViewModel
             updateTime.Tick += UpdateTime;
             updateTime.Start();
 
-            var tags = Git.RunGitCommand(
-                "for-each-ref",
-                "--format=\"%(refname:short)|%(creatordate:format:%Y/%m/%d %I:%M)|%(subject)\\n\" \"refs/tags/*\"",
-                Settings.EtiquetasDir
-            ).Split("\\n", StringSplitOptions.RemoveEmptyEntries).Select(GitTag.Parse);
-
-            if (!Settings.GitRepo.EndsWith('/'))
+            var tag = Git.GetLastTag();
+            if (tag is not null)
             {
-                Settings.GitRepo += '/';
+                GitTag = (GitTag)tag;
+                GitTagUri = Path.Combine(SettingsService.Instance.GitRepo, $"releases/tag/{GitTag.Tag}");
             }
 
-            GitTag = tags.Last();
-            GitTagUri = $"{Settings.GitRepo}releases/tag/{GitTag.Tag}";
-        }
+            ChangeThemeCommand = new(ChangeTheme);
+            UpdateClientsCommand = new(UpdateClients);
 
-        private static RelayCommand OpenWindow<T, K>(Core.Logic.Settings settings)
-            where T : IContent, new()
-            where K : ViewModelBase
-        {
-            return new RelayCommand(a =>
-            {
-                var vm = Activator.CreateInstance(typeof(K), settings) as ViewModelBase;
-                var win = new AdonisWindow
-                {
-                    Content = new T() { },
-                    Title = "Visual Ternera - " + T.Title,
-                    DataContext = vm
-                };
+            ClientsList = [.. new ServiceDbContext().EstadoCliente];
 
-                if (!vm!.Closed)
-                {
-                    win.Show();
-                }
-            });
+            _moduleManager.Run();
+            ModulesButtons = [.. _moduleManager.Modules.Select(m => new ModuleAction(m.ModuleName, new DelegateCommand<string>(LoadModule)))];
         }
 
         private void UpdateTime(object? sender, EventArgs args)
@@ -152,10 +83,36 @@ namespace Main.ViewModel
         {
             LastRefreshed = 0;
             ClientsList.Clear();
-            var dbContext = new ServiceDbContext(Settings.SqlConnection);
+
+            var dbContext = new ServiceDbContext();
             foreach (var client in dbContext.EstadoCliente)
             {
                 ClientsList.Add(client);
+            }
+        }
+
+        private void ChangeTheme()
+        {
+            SettingsService.Instance.Theme = SettingsService.Instance.Theme switch
+            {
+                Theme.Dark => Theme.Light,
+                Theme.Light => Theme.Dark,
+                _ => throw new NotImplementedException()
+            };
+
+            ((App)Application.Current).ChangeTheme(SettingsService.Instance.Theme);
+            SettingsService.Save();
+        }
+
+        private void LoadModule(string moduleName)
+        {
+            if (_moduleManager.ModuleExists(moduleName))
+            {
+                if (!_moduleManager.IsModuleInitialized(moduleName))
+                {
+                    _moduleManager.LoadModule(moduleName);
+                }
+                _eventAggregator.GetEvent<LoadModuleEvent>().Publish(moduleName);
             }
         }
     }

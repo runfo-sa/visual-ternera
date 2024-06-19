@@ -16,7 +16,7 @@ Theme: Dark
 Culture: "es-MX"
 
 # - Repositorio donde se almacenan globalmente las eitquetas
-GitRepo: "https://github.com/runfo-sa/Etiquetas"
+GitRepo: "https://github.com/runfo-sa/Etiquetas/"
 
 # - Extensión de los archivos de etiqueta, sirve para filtrar
 EtiquetasExtension: "e01"

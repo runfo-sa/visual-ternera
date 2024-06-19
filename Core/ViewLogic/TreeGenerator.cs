@@ -1,4 +1,4 @@
-﻿using Core.Logic;
+﻿using Core.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -8,14 +8,14 @@ namespace Core.ViewLogic
     /// <summary>
     /// Genera el arbol de directorios, utilizar la propiedad Root para desplegar el arbol.
     /// </summary>
-    public class TreeGenerator(Settings settings)
+    public class TreeGenerator(SettingsService settings)
     {
         /// <summary>
         /// Raiz del arbol de directorios.
         /// </summary>
         public ObservableCollection<object> Root => InitTree();
 
-        private readonly Settings _settings = settings;
+        private readonly SettingsService _settings = settings;
         private ObservableCollection<object>? _cachedRoot;
 
         private ObservableCollection<object> InitTree()

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Core.Services;
+using System.Diagnostics;
 using System.Text;
 
 namespace Core.Git
@@ -30,6 +31,18 @@ namespace Core.Git
 
             proc.WaitForExit();
             return sb.ToString();
+        }
+
+        public static GitTag? GetLastTag()
+        {
+            var tags = Git.RunGitCommand(
+                "for-each-ref",
+                "--format=\"%(refname:short)|%(creatordate:format:%Y/%m/%d %I:%M)|%(subject)\\n\" \"refs/tags/*\"",
+                SettingsService.Instance.EtiquetasDir)
+                .Split("\\n", StringSplitOptions.RemoveEmptyEntries)
+                .Select(GitTag.Parse);
+
+            return tags.LastOrDefault();
         }
     }
 }
