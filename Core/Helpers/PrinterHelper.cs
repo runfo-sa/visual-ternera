@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Core
+namespace Core.Helpers
 {
     /// <summary>
     /// Clase de ayuda para poder enviar las etiquetas a la impresora.

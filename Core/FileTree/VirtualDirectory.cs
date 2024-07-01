@@ -1,8 +1,7 @@
-﻿using Core.Interfaces;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.ObjectModel;
 
-namespace Core.ViewLogic
+namespace Core.FileTree
 {
     /// <summary>
     /// Directorio virtual para separar logicamente distinto tipos de archivos.

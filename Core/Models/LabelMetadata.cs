@@ -1,4 +1,4 @@
-﻿namespace Core.Logic
+﻿namespace Core.Models
 {
     /// <summary>
     /// Metadata para una etiqueta,

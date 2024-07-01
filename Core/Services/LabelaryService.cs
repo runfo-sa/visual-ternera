@@ -1,8 +1,7 @@
 ﻿using Core.Database;
 using Core.Database.Model;
-using Core.Interfaces;
-using Core.Logic.LabelaryModel;
-using Core.Services;
+using Core.Models;
+using Core.Services.LabelaryModel;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -11,12 +10,13 @@ using System.Net.Http;
 using System.Text;
 using YamlDotNet.Serialization;
 
-namespace Core.Logic
+namespace Core.Services
 {
     /// <summary>
-    /// Comunicador con la API de Labelary, para generar la preview de una etiqueta.
+    /// Servicio que se comunica con la API de Labelary,
+    /// para analizar y generar la muestra visual de una etiqueta.
     /// </summary>
-    public class Labelary(string content) : IPreview
+    public class LabelaryService(string content) : IPreviewService
     {
         private string _content = content;
         public string Content => _content;
@@ -24,39 +24,9 @@ namespace Core.Logic
         private readonly StringBuilder _error = new();
         public string Error => _error.ToString();
 
-        public async Task<string[]?> Linting(string codigo, string dpi, string size)
+        public IPreviewService FillProduct(string codigo)
         {
-            try
-            {
-                using HttpClient client = new()
-                {
-                    Timeout = TimeSpan.FromSeconds(10.0)
-                };
-
-                using StringContent body = new(
-                    codigo,
-                    Encoding.ASCII,
-                    "application/x-www-form-urlencoded"
-                );
-
-                string uri = $"http://api.labelary.com/v1/printers/{dpi}dpmm/labels/{size}/0/";
-                client.DefaultRequestHeaders.Add("X-Linter", "On");
-
-                using HttpResponseMessage response = await client.PostAsync(uri, body);
-                response.EnsureSuccessStatusCode();
-                return WarningParse(response.Headers.GetValues("X-Warnings").First());
-            }
-            catch (Exception err)
-            {
-                Trace.TraceError(err.Message);
-            }
-
-            return null;
-        }
-
-        public IPreview FillProduct(SettingsService settings, string codigo)
-        {
-            using var dbContext = new IdeDbContext(settings.SqlConnection);
+            using var dbContext = new IdeDbContext(SettingsService.Instance.SqlConnection);
             var codigoParam = new SqlParameter("@Codigo", codigo);
             List<string> vars = [
                 "DefinicionesCuartos",
@@ -105,7 +75,7 @@ namespace Core.Logic
             return this;
         }
 
-        public IPreview FillTestVariables()
+        public IPreviewService FillTestVariables()
         {
             using var dbContext = new IdeDbContext(SettingsService.Instance.SqlConnection);
             Dictionary<string, string> keyValues = dbContext.EtiquetasDatosPrueba
@@ -135,7 +105,7 @@ namespace Core.Logic
             return this;
         }
 
-        public IPreview LoadFonts()
+        public IPreviewService LoadFonts()
         {
             var startIdx = _content.IndexOf("^FX Start Metadata");
             var endIdx = _content.IndexOf("^FX End Metadata");
@@ -185,6 +155,36 @@ namespace Core.Logic
             catch (Exception err)
             {
                 Trace.TraceError(err.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<string[]?> Linting(string codigo, string dpi, string size)
+        {
+            try
+            {
+                using HttpClient client = new()
+                {
+                    Timeout = TimeSpan.FromSeconds(10.0)
+                };
+
+                using StringContent body = new(
+                    codigo,
+                    Encoding.ASCII,
+                    "application/x-www-form-urlencoded"
+                );
+
+                string uri = $"http://api.labelary.com/v1/printers/{dpi}dpmm/labels/{size}/0/";
+                client.DefaultRequestHeaders.Add("X-Linter", "On");
+
+                using HttpResponseMessage response = await client.PostAsync(uri, body);
+                response.EnsureSuccessStatusCode();
+                return WarningParse(response.Headers.GetValues("X-Warnings").First());
+            }
+            catch (Exception err)
+            {
+                Logger.Logger.Log(err.Message);
             }
 
             return null;

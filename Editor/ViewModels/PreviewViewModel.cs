@@ -1,6 +1,4 @@
-﻿using Core.Interfaces;
-using Core.Logic;
-using Core.Model;
+﻿using Core.Models;
 using Core.Services;
 using Core.Services.SettingsModel;
 using Editor.Services;
@@ -83,9 +81,9 @@ namespace Editor.ViewModels
 
         public async void GeneratePreview(string content)
         {
-            IPreview preview = SettingsService.Instance.PreviewEngine switch
+            IPreviewService preview = SettingsService.Instance.PreviewEngine switch
             {
-                PreviewEngine.Labelary => new Labelary(content),
+                PreviewEngine.Labelary => new LabelaryService(content),
                 _ => throw new NotImplementedException()
             };
 

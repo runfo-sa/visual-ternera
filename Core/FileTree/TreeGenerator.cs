@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 
-namespace Core.ViewLogic
+namespace Core.FileTree
 {
     /// <summary>
     /// Genera el arbol de directorios, utilizar la propiedad Root para desplegar el arbol.

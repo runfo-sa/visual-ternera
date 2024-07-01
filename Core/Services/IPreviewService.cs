@@ -1,8 +1,9 @@
-﻿using Core.Services;
-
-namespace Core.Interfaces
+﻿namespace Core.Services
 {
-    public interface IPreview
+    /// <summary>
+    /// Servicio que ofrece analisis, completado de variables y muestra visual para el lenguaje ZPL.
+    /// </summary>
+    public interface IPreviewService
     {
         /// <summary>
         /// Contenido procesado para generar la preview
@@ -26,13 +27,13 @@ namespace Core.Interfaces
         /// </summary>
         /// <param name="codigo">Codigo del producto</param>
         /// <returns>A si mismo, para concatenar metodos</returns>
-        public IPreview FillProduct(SettingsService settings, string codigo);
+        public IPreviewService FillProduct(string codigo);
 
         /// <summary>
         /// Completa las variables de una etiqueta con datos de prueba.
         /// </summary>
         /// <returns>A si mismo, para concatenar metodos</returns>
-        public IPreview FillTestVariables();
+        public IPreviewService FillTestVariables();
 
         /// <summary>
         /// Carga las fuentes de texto para poder renderizar distintos alfabetos.
@@ -40,7 +41,7 @@ namespace Core.Interfaces
         /// Los parametros para cargar otra fuente son especificados en la metadata de la etiqueta.
         /// </summary>
         /// <returns>A si mismo, para concatenar metodos</returns>
-        public IPreview LoadFonts();
+        public IPreviewService LoadFonts();
 
         /// <summary>
         /// Crea la preview de la etiqueta

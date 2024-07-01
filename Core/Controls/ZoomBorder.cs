@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace Core.ViewLogic
+namespace Core.Controls
 {
     /// <summary>
     /// Custom control para manipular el zoom de las imagenes.

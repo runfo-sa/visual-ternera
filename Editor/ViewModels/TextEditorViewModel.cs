@@ -1,10 +1,7 @@
-﻿using Core;
-using Core.Interfaces;
-using Core.Logic;
-using Core.Model;
+﻿using Core.FileTree;
+using Core.Helpers;
+using Core.Models;
 using Core.Services;
-using Core.Services.SettingsModel;
-using Core.ViewLogic;
 using Editor.Models;
 using Editor.Services;
 using Microsoft.IdentityModel.Tokens;
@@ -272,7 +269,7 @@ namespace Editor.ViewModels
         private void Print()
         {
             var item = TabsList[CurrentTabIndex];
-            var content = new Labelary(item.Content.Text)
+            var content = new LabelaryService(item.Content.Text)
                 .FillTestVariables()
                 .Content;
 
@@ -288,16 +285,13 @@ namespace Editor.ViewModels
             var tab = TabsList[CurrentTabIndex];
             var content = TabsList[CurrentTabIndex].Content.Text;
 
-            IPreview preview = SettingsService.Instance.PreviewEngine switch
-            {
-                PreviewEngine.Labelary => new Labelary(content),
-                _ => throw new NotImplementedException()
-            };
-
             var dpi = (LabelDpi)PreviewViewModel.DpiList.CurrentItem;
             var size = (LabelSize)PreviewViewModel.SizeList.CurrentItem;
 
-            var lintings = await preview.Linting(content, dpi.Value, size.Value);
+            var lintings = await PreviewServiceProvider
+                .ProvideService(content)
+                .Linting(content, dpi.Value, size.Value);
+
             if (lintings is not null)
             {
                 tab.LintingData = lintings.Select(LintingInfo.Parse).ToList();

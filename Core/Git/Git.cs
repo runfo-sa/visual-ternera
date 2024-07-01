@@ -33,9 +33,12 @@ namespace Core.Git
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Devuelve la metadata de la ultima version publicada en Git.
+        /// </summary>
         public static GitTag? GetLastTag()
         {
-            var tags = Git.RunGitCommand(
+            var tags = RunGitCommand(
                 "for-each-ref",
                 "--format=\"%(refname:short)|%(creatordate:format:%Y/%m/%d %I:%M)|%(subject)\\n\" \"refs/tags/*\"",
                 SettingsService.Instance.EtiquetasDir)

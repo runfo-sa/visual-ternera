@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Core.Logic.LabelaryModel
+namespace Core.Services.LabelaryModel
 {
     public enum LabelaryLanguageType
     {

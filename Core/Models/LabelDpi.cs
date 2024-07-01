@@ -1,4 +1,4 @@
-﻿namespace Core.Model
+﻿namespace Core.Models
 {
     public record struct LabelDpi(string Display, string Value);
 

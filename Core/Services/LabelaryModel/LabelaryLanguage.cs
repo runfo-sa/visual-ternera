@@ -1,4 +1,4 @@
-﻿namespace Core.Logic.LabelaryModel
+﻿namespace Core.Services.LabelaryModel
 {
     public record struct LabelaryLanguage(LabelaryLanguageType LanguageType, char Letter)
     {

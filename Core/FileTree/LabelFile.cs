@@ -1,6 +1,4 @@
-﻿using Core.Interfaces;
-
-namespace Core.ViewLogic
+﻿namespace Core.FileTree
 {
     public class LabelFile(string path) : IFile
     {
