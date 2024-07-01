@@ -1,0 +1,103 @@
+﻿<UserControl x:Class="Editor.Views.TextEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+             xmlns:control="clr-namespace:Editor.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:model="clr-namespace:Editor.Models"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ControlTemplate x:Key="TabEditorTemplate"
+                         TargetType="{x:Type TabControl}">
+            <Grid Background="{TemplateBinding Background}"
+                  KeyboardNavigation.TabNavigation="Local"
+                  SnapsToDevicePixels="True">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Border Grid.Row="1"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="4">
+                    <ContentPresenter ContentSource="SelectedContent" />
+                </Border>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                              Margin="0,0,0,-7">
+                    <DockPanel IsItemsHost="True"
+                               LastChildFill="False" />
+                </ScrollViewer>
+            </Grid>
+        </ControlTemplate>
+
+        <DataTemplate x:Key="headerTemplate"
+                      DataType="{x:Type model:TabItem}">
+            <DockPanel>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseDown">
+                        <i:InvokeCommandAction Command="{Binding DataContext.CloseMiddleClickCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                               PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+
+                <TextBlock DockPanel.Dock="Left"
+                           Margin="5,0"
+                           Text="{Binding Header}"
+                           TextAlignment="Center"
+                           ToolTip="{Binding Path}"
+                           VerticalAlignment="Center" />
+                <Button DockPanel.Dock="Right"
+                        Background="{x:Null}"
+                        BorderBrush="{x:Null}"
+                        Command="{Binding DataContext.CommandService.CloseCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                        CommandParameter="{Binding}"
+                        Content="⤫" />
+            </DockPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="contentTemplate"
+                      DataType="{x:Type model:TabItem}">
+            <control:LinterTextEditor Background="{DynamicResource {x:Static adonisUi:Brushes.Layer4BackgroundBrush}}"
+                                      Document="{Binding Content}"
+                                      FontFamily="Cascadia Mono Regular"
+                                      FontSize="14"
+                                      Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
+                                      LinterData="{Binding LintingData}"
+                                      ShowLineNumbers="True"
+                                      SyntaxHighlighting="ZPL"
+                                      WordWrap="True" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+        <TabControl BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}"
+                    ContentTemplate="{Binding Source={StaticResource contentTemplate}}"
+                    ItemsSource="{Binding TabsList}"
+                    ItemTemplate="{Binding Source={StaticResource headerTemplate}}"
+                    Template="{DynamicResource TabEditorTemplate}"
+                    SelectedIndex="{Binding CurrentTabIndex}" />
+        <ScrollViewer Height="128"
+                      Visibility="{Binding ShowErrorWindow}"
+                      VerticalAlignment="Bottom">
+            <ScrollViewer.Background>
+                <SolidColorBrush Color="{DynamicResource {x:Static adonisUi:Colors.ErrorColor}}"
+                                 Opacity="0.75" />
+            </ScrollViewer.Background>
+            <DockPanel Margin="10"
+                       LastChildFill="False">
+                <TextBlock FontWeight="DemiBold"
+                           FontSize="12"
+                           Text="{Binding ErrorsMessage}" />
+                <Button Content="⤫"
+                        Background="{x:Null}"
+                        BorderBrush="{x:Null}"
+                        VerticalAlignment="Top"
+                        DockPanel.Dock="Right"
+                        Command="{Binding CloseErrorWindowCommand}" />
+            </DockPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

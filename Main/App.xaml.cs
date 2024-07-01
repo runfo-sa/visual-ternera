@@ -2,6 +2,7 @@
 using Core.Logger;
 using Core.Services;
 using Core.Services.SettingsModel;
+using Core.View;
 using ICSharpCode.AvalonEdit.Highlighting;
 using Main.ViewModels;
 using Main.Views;
@@ -54,6 +55,7 @@ namespace Main
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterDialog<Settings>();
         }
 
         protected override void ConfigureViewModelLocator()
@@ -75,7 +77,7 @@ namespace Main
             popUp.ShowDialog();
         }
 
-        public void ChangeTheme(Theme theme)
+        public static void ChangeTheme(Theme theme)
         {
             ResourceLocator.SetColorScheme(Current.Resources,
                 theme == Theme.Dark ? ResourceLocator.DarkColorScheme : ResourceLocator.LightColorScheme);

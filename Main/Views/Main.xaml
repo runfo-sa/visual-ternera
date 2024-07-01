@@ -7,7 +7,6 @@
                              xmlns:model="clr-namespace:Main.Models"
                              xmlns:prism="http://prismlibrary.com/"
                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                             prism:ViewModelLocator.AutoWireViewModel="True"
                              Title="Visual Ternera - Main"
                              Height="576"
                              Width="1024"
@@ -47,10 +46,18 @@
                             <DataTemplate DataType="{x:Type model:ModuleAction}">
                                 <Button Command="{Binding Command}"
                                         CommandParameter="{Binding Name}"
-                                        Content="{Binding Name}"
-                                        FontSize="32"
-                                        FontWeight="DemiBold"
-                                        Margin="15" />
+                                        HorizontalContentAlignment="Stretch"
+                                        Margin="15">
+                                    <DockPanel>
+                                        <materialIcons:MaterialIcon Kind="{Binding Icon}"
+                                                                    Width="Auto" />
+                                        <TextBlock FontSize="32"
+                                                   FontWeight="DemiBold"
+                                                   HorizontalAlignment="Center"
+                                                   Text="{Binding DisplayName}"
+                                                   VerticalAlignment="Center" />
+                                    </DockPanel>
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

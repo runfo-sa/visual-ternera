@@ -1,6 +1,5 @@
 ﻿using Core.Services;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 
 namespace Core.ViewLogic
@@ -8,14 +7,14 @@ namespace Core.ViewLogic
     /// <summary>
     /// Genera el arbol de directorios, utilizar la propiedad Root para desplegar el arbol.
     /// </summary>
-    public class TreeGenerator(SettingsService settings)
+    public class TreeGenerator()
     {
         /// <summary>
         /// Raiz del arbol de directorios.
         /// </summary>
         public ObservableCollection<object> Root => InitTree();
 
-        private readonly SettingsService _settings = settings;
+        private readonly SettingsService _settings = SettingsService.Instance;
         private ObservableCollection<object>? _cachedRoot;
 
         private ObservableCollection<object> InitTree()
@@ -32,7 +31,6 @@ namespace Core.ViewLogic
             foreach (var dir in _settings.VirtualDirectories)
             {
                 dirs.Add(new VirtualDirectory(dir.Name));
-                Trace.WriteLine(dir);
             }
 
             foreach (var file in files)

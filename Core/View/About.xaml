@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="Core.View.About"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             mc:Ignorable="d"
+             Height="200"
+             Width="400">
+    <GroupBox>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock FontSize="26"
+                       FontWeight="DemiBold"
+                       HorizontalAlignment="Center"
+                       Text="Visual Ternera"
+                       VerticalAlignment="Center" />
+
+            <TextBlock x:Name="verionText"
+                       Grid.Row="1"
+                       FontSize="14"
+                       FontWeight="Regular"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+
+            <TextBlock Grid.Row="2"
+                       FontSize="12"
+                       FontWeight="Regular"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Text="Agustin Marco - &lt;agustin.marco@runfo.com.ar>" />
+
+            <Button Grid.Row="3"
+                    Command="{Binding CloseDialogCommand}"
+                    Content="Okay"
+                    VerticalAlignment="Bottom" />
+        </Grid>
+    </GroupBox>
+</UserControl>

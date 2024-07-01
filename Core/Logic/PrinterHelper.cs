@@ -48,7 +48,7 @@ namespace Core
             DOCINFOA di = new();
             bool bSuccess = false; // Assume failure unless you specifically succeed.
 
-            di.pDocName = $"Visual Ternera - Etiqueta::{docName}";
+            di.pDocName = $"Visual Ternera - {docName}";
             di.pDataType = "RAW";
 
             // Open the printer.

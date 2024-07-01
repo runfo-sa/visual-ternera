@@ -8,54 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\dark-new.png" />
-    <None Remove="Resources\dark-open.png" />
-    <None Remove="Resources\dark-preview.png" />
-    <None Remove="Resources\dark-print.png" />
-    <None Remove="Resources\dark-rotate-left.png" />
-    <None Remove="Resources\dark-rotate-right.png" />
-    <None Remove="Resources\dark-save-all.png" />
-    <None Remove="Resources\dark-save.png" />
-    <None Remove="Resources\light-new.png" />
-    <None Remove="Resources\light-open.png" />
-    <None Remove="Resources\light-preview.png" />
-    <None Remove="Resources\light-print.png" />
-    <None Remove="Resources\light-rotate-left.png" />
-    <None Remove="Resources\light-rotate-right.png" />
-    <None Remove="Resources\light-save-all.png" />
-    <None Remove="Resources\light-save.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\dark-new.png" />
-    <Resource Include="Resources\dark-open.png" />
-    <Resource Include="Resources\dark-preview.png" />
-    <Resource Include="Resources\dark-print.png" />
-    <Resource Include="Resources\dark-rotate-left.png" />
-    <Resource Include="Resources\dark-rotate-right.png" />
-    <Resource Include="Resources\dark-save-all.png" />
-    <Resource Include="Resources\dark-save.png" />
-    <Resource Include="Resources\light-new.png" />
-    <Resource Include="Resources\light-open.png" />
-    <Resource Include="Resources\light-preview.png" />
-    <Resource Include="Resources\light-print.png" />
-    <Resource Include="Resources\light-rotate-left.png" />
-    <Resource Include="Resources\light-rotate-right.png" />
-    <Resource Include="Resources\light-save-all.png" />
-    <Resource Include="Resources\light-save.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
     <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
-    <PackageReference Include="Material.Icons.WPF" Version="2.1.9" />
+    <PackageReference Include="Material.Icons.WPF" Version="2.1.10" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.122" />
     <PackageReference Include="Prism.Wpf" Version="9.0.401-pre" />
     <PackageReference Include="YamlDotNet" Version="15.3.0" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(TargetDir)$(TargetName)*$(TargetExt)&quot; &quot;$(SolutionDir)Main\bin\Debug\net8.0-windows\Modules\&quot; /Y /S" />
+  </Target>
 
 </Project>

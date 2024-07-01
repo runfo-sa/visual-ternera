@@ -105,9 +105,9 @@ namespace Core.Logic
             return this;
         }
 
-        public IPreview FillTestVariables(SettingsService settings)
+        public IPreview FillTestVariables()
         {
-            using var dbContext = new IdeDbContext(settings.SqlConnection);
+            using var dbContext = new IdeDbContext(SettingsService.Instance.SqlConnection);
             Dictionary<string, string> keyValues = dbContext.EtiquetasDatosPrueba
                 .ToDictionary(x => x.Key, v => v.Value);
 

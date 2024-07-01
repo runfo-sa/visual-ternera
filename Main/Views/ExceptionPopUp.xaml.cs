@@ -10,7 +10,7 @@ namespace Main.Views
             errorMessage.Text = exceptionMessage;
         }
 
-        private void okButton_Click(Object sender, System.Windows.RoutedEventArgs e)
+        private void Confirm(Object sender, System.Windows.RoutedEventArgs e)
         {
             DialogResult = true;
         }

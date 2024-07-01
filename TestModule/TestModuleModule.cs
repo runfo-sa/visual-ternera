@@ -3,7 +3,7 @@ using Core.Services;
 
 namespace TestModule
 {
-    [Module(ModuleName = "Test Module", OnDemand = true)]
+    [Module(ModuleName = "Test Module#TestTube", OnDemand = true)]
     public class TestModuleModule : IModule
     {
         public void OnInitialized(IContainerProvider containerProvider) { }

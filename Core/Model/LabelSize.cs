@@ -3,14 +3,7 @@ using System.Xml.Serialization;
 
 namespace Core.Model
 {
-    public record struct LabelSize(string Display, string Value);
-
-    public class SizeList
-    {
-        public LabelSize[] Items;
-    }
-
-    public static class SizeConstants
+    public record struct LabelSize(string Display, string Value)
     {
         public static LabelSize[] GetList(string content)
         {
@@ -21,5 +14,10 @@ namespace Core.Model
                 return list.Items;
             }
         }
+    }
+
+    public class SizeList
+    {
+        public LabelSize[] Items;
     }
 }

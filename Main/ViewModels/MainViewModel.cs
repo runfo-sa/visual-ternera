@@ -5,9 +5,9 @@ using Core.Git;
 using Core.Services;
 using Core.Services.SettingsModel;
 using Main.Models;
+using Material.Icons;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
 using System.Windows.Threading;
 
 namespace Main.ViewModels
@@ -66,7 +66,15 @@ namespace Main.ViewModels
             ClientsList = [.. new ServiceDbContext().EstadoCliente];
 
             _moduleManager.Run();
-            ModulesButtons = [.. _moduleManager.Modules.Select(m => new ModuleAction(m.ModuleName, new DelegateCommand<string>(LoadModule)))];
+            ModulesButtons = [.. _moduleManager.Modules.Select(m =>
+            {
+                if (m.ModuleName.Contains('#') && Enum.TryParse(m.ModuleName[(m.ModuleName.IndexOf('#') + 1)..], out MaterialIconKind icon))
+                {
+                    return new ModuleAction(m.ModuleName, m.ModuleName[..m.ModuleName.IndexOf('#')], new DelegateCommand<string>(LoadModule), icon);
+                }
+
+                return new ModuleAction(m.ModuleName, m.ModuleName, new DelegateCommand<string>(LoadModule));
+            })];
         }
 
         private void UpdateTime(object? sender, EventArgs args)
@@ -100,7 +108,7 @@ namespace Main.ViewModels
                 _ => throw new NotImplementedException()
             };
 
-            ((App)Application.Current).ChangeTheme(SettingsService.Instance.Theme);
+            App.ChangeTheme(SettingsService.Instance.Theme);
             SettingsService.Save();
         }
 

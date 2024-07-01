@@ -32,7 +32,7 @@ namespace Core.Interfaces
         /// Completa las variables de una etiqueta con datos de prueba.
         /// </summary>
         /// <returns>A si mismo, para concatenar metodos</returns>
-        public IPreview FillTestVariables(SettingsService settings);
+        public IPreview FillTestVariables();
 
         /// <summary>
         /// Carga las fuentes de texto para poder renderizar distintos alfabetos.

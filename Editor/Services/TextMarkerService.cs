@@ -68,7 +68,7 @@ namespace Editor.Services
                     using (StreamGeometryContext ctx = geometry.Open())
                     {
                         ctx.BeginFigure(startPoint, false, false);
-                        ctx.PolyLineTo(CreatePoints(startPoint, endPoint, offset, count).ToArray(), true, false);
+                        ctx.PolyLineTo(CreatePoints(startPoint, offset, count).ToArray(), true, false);
                     }
 
                     geometry.Freeze();
@@ -87,7 +87,7 @@ namespace Editor.Services
         public void Transform(ITextRunConstructionContext context, IList<VisualLineElement> elements)
         { }
 
-        private IEnumerable<Point> CreatePoints(Point start, Point end, double offset, int count)
+        private static IEnumerable<Point> CreatePoints(Point start, double offset, int count)
         {
             for (int i = 0; i < count; i++)
             {

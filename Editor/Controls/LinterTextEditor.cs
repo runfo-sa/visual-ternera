@@ -1,4 +1,4 @@
-﻿using Editor.Model;
+﻿using Editor.Models;
 using Editor.Services;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
